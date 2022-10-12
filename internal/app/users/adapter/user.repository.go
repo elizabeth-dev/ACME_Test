@@ -3,9 +3,12 @@ package adapter
 import (
 	"context"
 	"github.com/elizabeth-dev/FACEIT_Test/internal/app/users/domain/user"
+	"github.com/elizabeth-dev/FACEIT_Test/internal/pkg/utils/mongo_utils"
+	"github.com/elizabeth-dev/FACEIT_Test/internal/pkg/utils/query_utils"
 	"github.com/pkg/errors"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"time"
 )
 
@@ -55,10 +58,22 @@ func (r *UserRepository) AddUser(ctx context.Context, newUser *user.User) error 
 /*
 GetUsers retrieves the user entities from the database.
 */
-func (r *UserRepository) GetUsers(ctx context.Context) ([]*user.User, error) {
+func (r *UserRepository) GetUsers(
+	ctx context.Context,
+	queryFilters []query_utils.Filter,
+	sort []query_utils.Sort,
+	pagination query_utils.Pagination,
+) ([]*user.User, error) {
 	var users []*user.User
 
-	cur, err := r.col.Find(ctx, bson.D{})
+	filter := mongo_utils.MapFilterToBson(queryFilters)
+	opts := &options.FindOptions{
+		Sort:  mongo_utils.MapSortToBson(sort),
+		Limit: &pagination.Limit,
+		Skip:  &pagination.Offset,
+	}
+
+	cur, err := r.col.Find(ctx, filter, opts)
 	if err != nil {
 		return nil, errors.Wrap(err, "[UserRepository] Error retrieving users")
 	}
