@@ -7,6 +7,7 @@ import (
 
 type Repository interface {
 	AddUser(ctx context.Context, user *User) error
+	GetUserById(ctx context.Context, userId string) (*User, error)
 	GetUsers(
 		ctx context.Context,
 		filters []query_utils.Filter,

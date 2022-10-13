@@ -55,6 +55,32 @@ func (r *UserRepository) AddUser(ctx context.Context, newUser *user.User) error 
 	return nil
 }
 
+func (r *UserRepository) GetUserById(ctx context.Context, userId string) (*user.User, error) {
+	var userModel UserModel
+
+	if err := r.col.FindOne(ctx, bson.M{"id": userId}).Decode(&userModel); err != nil {
+		if err == mongo.ErrNoDocuments {
+			return nil, errors.Wrap(err, "[UserRepository] User not found")
+		}
+
+		return nil, err
+	}
+
+	dbUser := user.UnmarshalUserFromDB(
+		userModel.Id,
+		userModel.FirstName,
+		userModel.LastName,
+		userModel.Nickname,
+		userModel.Password,
+		userModel.Email,
+		userModel.Country,
+		userModel.CreatedAt,
+		userModel.UpdatedAt,
+	)
+
+	return dbUser, nil
+}
+
 /*
 GetUsers retrieves the user entities from the database.
 */
@@ -85,7 +111,7 @@ func (r *UserRepository) GetUsers(
 			return nil, errors.Wrap(err, "[UserRepository] Error decoding user")
 		}
 
-		u := user.UnmarshalUserFromDB(
+		dbUser := user.UnmarshalUserFromDB(
 			userModel.Id,
 			userModel.FirstName,
 			userModel.LastName,
@@ -97,7 +123,7 @@ func (r *UserRepository) GetUsers(
 			userModel.UpdatedAt,
 		)
 
-		users = append(users, u)
+		users = append(users, dbUser)
 	}
 
 	return users, nil

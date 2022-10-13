@@ -64,6 +64,72 @@ func (u *User) UpdatedAt() time.Time {
 }
 
 /*
+Update
+
+TODO: fix fields being updated anyway if an error occurs downwards
+*/
+func (u *User) Update(
+	firstName *string,
+	lastName *string,
+	nickname *string,
+	password *string,
+	email *string,
+	country *string,
+) error {
+	if firstName != nil {
+		if *firstName == "" {
+			return errors.New("[User] Empty first name")
+		}
+
+		u.firstName = *firstName
+	}
+
+	if lastName != nil {
+		if *lastName == "" {
+			return errors.New("[User] Empty last name")
+		}
+
+		u.lastName = *lastName
+	}
+
+	if nickname != nil {
+		if *nickname == "" {
+			return errors.New("[User] Empty nickname")
+		}
+
+		u.nickname = *nickname
+	}
+
+	if password != nil {
+		if *password == "" {
+			return errors.New("[User] Empty password")
+		}
+
+		u.password = *password
+	}
+
+	if email != nil {
+		if *email == "" {
+			return errors.New("[User] Empty email")
+		}
+
+		u.email = *email
+	}
+
+	if country != nil {
+		if *country == "" {
+			return errors.New("[User] Empty country")
+		}
+
+		u.country = *country
+	}
+
+	u.updatedAt = time.Now()
+
+	return nil
+}
+
+/*
 CreateUser is the method we use to register new users into our platform.
 
 The "register new users" part should be emphasized, as this should never be used
