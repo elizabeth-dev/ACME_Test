@@ -1,0 +1,57 @@
+syntax = "proto3";
+package test.elizabeth.faceit.api.v1;
+option go_package = "github.com/elizabeth-dev/FACEIT_Test/pkg/api/v1";
+
+import "common.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+
+service UserService {
+	rpc CreateUser (CreateUserRequest) returns (User) {}
+	rpc GetUsers (GetUsersRequest) returns (stream User) {}
+	rpc UpdateUser (UpdateUserRequest) returns (User) {}
+	rpc RemoveUser (RemoveUserRequest) returns (google.protobuf.Empty) {}
+}
+
+message User {
+	string id = 1;
+	string first_name = 2;
+	string last_name = 3;
+	string nickname = 4;
+	string password = 5;
+	string email = 6;
+	string country = 7;
+	google.protobuf.Timestamp created_at = 8;
+	google.protobuf.Timestamp updated_at = 9;
+}
+
+message CreateUserRequest {
+	string first_name = 1;
+	string last_name = 2;
+	string nickname = 3;
+	string password = 4;
+	string email = 5;
+	string country = 6;
+}
+
+message GetUsersRequest {
+	repeated Filter filters = 1;
+	// The order of non-packed repeated elements is preserved for the same field.
+	// https://developers.google.com/protocol-buffers/docs/encoding#optional
+	repeated Sort sort = 2;
+	Pagination pagination = 3;
+}
+
+message UpdateUserRequest {
+	string id = 1;
+	optional string first_name = 2;
+	optional string last_name = 3;
+	optional string nickname = 4;
+	optional string password = 5;
+	optional string email = 6;
+	optional string country = 7;
+}
+
+message RemoveUserRequest {
+	string id = 1;
+}
