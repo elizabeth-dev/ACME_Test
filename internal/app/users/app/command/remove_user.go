@@ -9,9 +9,6 @@ import (
 /*
 The RemoveUser command removes a user from our platform given its id.
 */
-type RemoveUser struct {
-	Id string
-}
 
 type RemoveUserHandler struct {
 	userRepo user.Repository
@@ -25,9 +22,9 @@ func NewRemoveUserHandler(userRepo user.Repository) *RemoveUserHandler {
 	return &RemoveUserHandler{userRepo}
 }
 
-func (h *RemoveUserHandler) Handle(ctx context.Context, cmd RemoveUser) error {
-	if err := h.userRepo.RemoveUser(ctx, cmd.Id); err != nil {
-		return errors.Wrap(err, "[command/remove_user] Error removing user "+cmd.Id+" from database")
+func (h *RemoveUserHandler) Handle(ctx context.Context, userId string) error {
+	if err := h.userRepo.RemoveUser(ctx, userId); err != nil {
+		return errors.Wrap(err, "[command/remove_user] Error removing user "+userId+" from database")
 	}
 
 	return nil
