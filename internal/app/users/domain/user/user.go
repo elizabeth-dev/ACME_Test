@@ -1,7 +1,8 @@
 package user
 
 import (
-	"errors"
+	"github.com/pkg/errors"
+	"golang.org/x/crypto/bcrypt"
 	"time"
 )
 
@@ -105,7 +106,13 @@ func (u *User) Update(
 			return errors.New("[User] Empty password")
 		}
 
-		u.password = *password
+		hashedPassword, err := hashPassword(*password)
+
+		if err != nil {
+			return errors.Wrap(err, "[User] Error hashing password")
+		}
+
+		u.password = hashedPassword
 	}
 
 	if email != nil {
@@ -172,6 +179,12 @@ func CreateUser(
 		return nil, errors.New("[User] Empty country")
 	}
 
+	hashedPassword, err := hashPassword(password)
+
+	if err != nil {
+		return nil, errors.Wrap(err, "[User] Error hashing password")
+	}
+
 	now := time.Now()
 
 	return &User{
@@ -179,7 +192,7 @@ func CreateUser(
 		firstName: firstName,
 		lastName:  lastName,
 		nickname:  nickname,
-		password:  password,
+		password:  hashedPassword,
 		email:     email,
 		country:   country,
 		createdAt: now,
@@ -222,4 +235,21 @@ func UnmarshalUserFromDB(
 		createdAt: createdAt,
 		updatedAt: updatedAt,
 	}
+}
+
+/*
+hashPassword is a helper method that takes a password and hashes it using the bcrypt hash function.
+
+Now, here I've been making some research, as the OWASP foundation guidelines recommend using Argon2id, a newer hash function, but its strength compared to the bcrypt function seems to be debated under specific circumstances. Argon2id seems to be weaker to GPU attacks, but it's stronger than bcrypt against FPGA attacks. So... For now I think I'll stick with bcrypt, as it's still considered a strong hash function, has been field-tested for a longer time, and is also on the OWASP guidelines.
+
+I've run a simple benchmark on bcrypt cost values. On my computer 13 rounds take ~600ms, while 14 rounds take ~1200ms. So I'm using 14 rounds, as it's closer to the general rule of 1 second.
+*/
+func hashPassword(password string) (string, error) {
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), 14)
+
+	if err != nil {
+		return "", errors.Wrap(err, "[User] Error hashing password")
+	}
+
+	return string(hashedPassword), nil
 }
