@@ -1,0 +1,8 @@
+.idea/
+api/
+build/
+scripts/
+Makefile
+.editorconfig
+FACEIT_Test.iml
+.gitignore
