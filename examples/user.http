@@ -1,0 +1,51 @@
+GRPC localhost:8080/test.elizabeth.faceit.api.v1.UserService/CreateUser
+
+{
+	"first_name": "Elizabeth",
+	"last_name": "Martin",
+	"nickname": "elizabeth-dev",
+	"password": "supersecurepassword",
+	"email": "me@elizabeth.sh",
+	"country": "ES"
+}
+
+###
+
+GRPC localhost:8080/test.elizabeth.faceit.api.v1.UserService/GetUsers
+
+{
+	"filters": [
+		{
+			"field": "nickname",
+			"operator": "EQUALS",
+			"string_value": "elizabeth-dev"
+		}
+	],
+    "sort": [
+        {
+          "field": "created_at",
+          "direction": "ASC"
+        }
+    ],
+    "pagination": {
+        "limit": 2,
+        "offset": 0
+    }
+}
+
+###
+
+GRPC localhost:8080/test.elizabeth.faceit.api.v1.UserService/UpdateUser
+
+{
+    "id": "c6822b6a-e502-4602-837d-faf563ad66e1",
+    "nickname": "elizabeth-dev-2"
+}
+
+###
+
+GRPC localhost:8080/test.elizabeth.faceit.api.v1.UserService/RemoveUser
+
+{
+    "id": "c31b77ce-a29a-4333-adf6-ced9a32420c8"
+}
