@@ -24,12 +24,12 @@ type GetUsersHandler struct {
 	userRepo user.Repository
 }
 
-func NewGetUsersHandler(userRepo user.Repository) *GetUsersHandler {
+func NewGetUsersHandler(userRepo user.Repository) GetUsersHandler {
 	if userRepo == nil {
 		panic("[query/get_users] nil userRepo")
 	}
 
-	return &GetUsersHandler{userRepo}
+	return GetUsersHandler{userRepo}
 }
 
 func (h *GetUsersHandler) Handle(ctx context.Context, query GetUsers) ([]*User, error) {

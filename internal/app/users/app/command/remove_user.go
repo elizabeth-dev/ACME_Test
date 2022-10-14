@@ -14,12 +14,12 @@ type RemoveUserHandler struct {
 	userRepo user.Repository
 }
 
-func NewRemoveUserHandler(userRepo user.Repository) *RemoveUserHandler {
+func NewRemoveUserHandler(userRepo user.Repository) RemoveUserHandler {
 	if userRepo == nil {
 		panic("[command/remove_user] nil userRepo")
 	}
 
-	return &RemoveUserHandler{userRepo}
+	return RemoveUserHandler{userRepo}
 }
 
 func (h *RemoveUserHandler) Handle(ctx context.Context, userId string) error {

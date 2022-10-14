@@ -23,12 +23,12 @@ type UpdateUserHandler struct {
 	userRepo user.Repository
 }
 
-func NewUpdateUserHandler(userRepo user.Repository) *UpdateUserHandler {
+func NewUpdateUserHandler(userRepo user.Repository) UpdateUserHandler {
 	if userRepo == nil {
 		panic("[command/update_user] nil userRepo")
 	}
 
-	return &UpdateUserHandler{userRepo}
+	return UpdateUserHandler{userRepo}
 }
 
 func (h *UpdateUserHandler) Handle(ctx context.Context, cmd UpdateUser) error {

@@ -23,12 +23,12 @@ type CreateUserHandler struct {
 	userRepo user.Repository
 }
 
-func NewCreateUserHandler(userRepo user.Repository) *CreateUserHandler {
+func NewCreateUserHandler(userRepo user.Repository) CreateUserHandler {
 	if userRepo == nil {
 		panic("[command/create_user] nil userRepo")
 	}
 
-	return &CreateUserHandler{userRepo}
+	return CreateUserHandler{userRepo}
 }
 
 func (h *CreateUserHandler) Handle(ctx context.Context, cmd CreateUser) (string, error) {

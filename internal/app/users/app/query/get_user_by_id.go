@@ -13,12 +13,12 @@ type GetUserByIdHandler struct {
 	userRepo user.Repository
 }
 
-func NewGetUserByIdHandler(userRepo user.Repository) *GetUserByIdHandler {
+func NewGetUserByIdHandler(userRepo user.Repository) GetUserByIdHandler {
 	if userRepo == nil {
 		panic("[query/get_user_by_id] nil userRepo")
 	}
 
-	return &GetUserByIdHandler{userRepo}
+	return GetUserByIdHandler{userRepo}
 }
 
 func (h *GetUserByIdHandler) Handle(ctx context.Context, userId string) (*User, error) {
