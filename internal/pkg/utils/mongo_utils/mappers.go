@@ -10,7 +10,7 @@ import (
 
 func MapFilterToBson(filter []query_utils.Filter) bson.M {
 	// When applying a filter, the document order for the filters doesn't matter, so we use bson.M
-	var bsonFilter bson.M
+	bsonFilter := bson.M{}
 
 	for _, f := range filter {
 		operator := MapComparisonOperatorToBson(f.Operator)

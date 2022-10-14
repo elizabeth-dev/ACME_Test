@@ -94,9 +94,12 @@ func (r *UserRepository) GetUsers(
 
 	filter := mongo_utils.MapFilterToBson(queryFilters)
 	opts := &options.FindOptions{
-		Sort:  mongo_utils.MapSortToBson(sort),
 		Limit: &pagination.Limit,
 		Skip:  &pagination.Offset,
+	}
+
+	if len(sort) > 0 {
+		opts.SetSort(mongo_utils.MapSortToBson(sort))
 	}
 
 	cur, err := r.col.Find(ctx, filter, opts)
