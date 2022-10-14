@@ -13,9 +13,15 @@ import (
 	"os"
 )
 
-func NewApplication(ctx context.Context) app.Application {
+func NewApplication(ctx context.Context) (app.Application, map[string]func(ctx context.Context) error) {
 	dbClient := setupMongo(ctx)
 	userRepo := adapter.NewUserRepository(dbClient)
+
+	dependencies := map[string]func(ctx context.Context) error{
+		"mongodb": func(ctx context.Context) error {
+			return dbClient.Client().Ping(ctx, nil)
+		},
+	}
 
 	return app.Application{
 		Commands: app.Commands{
@@ -27,7 +33,8 @@ func NewApplication(ctx context.Context) app.Application {
 			GetUsers:    query.NewGetUsersHandler(&userRepo),
 			GetUserById: query.NewGetUserByIdHandler(&userRepo),
 		},
-	}
+	}, dependencies
+
 }
 
 func setupMongo(ctx context.Context) *mongo.Database {
