@@ -11,5 +11,8 @@ run run.compose:
 mocks:
 	@sh -c "'$(CURDIR)/scripts/mocks.sh'"
 
-test:
-	@sh -c "'$(CURDIR)/scripts/test.sh'"
+test.unit:
+	@sh -c "'$(CURDIR)/scripts/test.unit.sh'"
+
+test.e2e:
+	@sh -c "'$(CURDIR)/scripts/test.e2e.sh'"
