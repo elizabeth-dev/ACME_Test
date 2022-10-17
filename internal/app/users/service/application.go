@@ -6,6 +6,7 @@ import (
 	"github.com/elizabeth-dev/FACEIT_Test/internal/app/users/app"
 	"github.com/elizabeth-dev/FACEIT_Test/internal/app/users/app/command"
 	"github.com/elizabeth-dev/FACEIT_Test/internal/app/users/app/query"
+	"github.com/elizabeth-dev/FACEIT_Test/internal/pkg/helper/mongo_helper"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
@@ -37,7 +38,7 @@ func NewApplication(ctx context.Context) (app.Application, map[string]func(ctx c
 
 }
 
-func setupMongo(ctx context.Context) *mongo.Database {
+func setupMongo(ctx context.Context) mongo_helper.Database {
 	mongoUri := os.Getenv("MONGODB_URI")
 
 	if mongoUri == "" {
@@ -69,5 +70,5 @@ func setupMongo(ctx context.Context) *mongo.Database {
 		log.Fatal("You must set your db on the MongoDB URI or in the 'MONGODB_DB' environmental variable.")
 	}
 
-	return client.Database(db)
+	return &mongo_helper.MongoDatabase{Db: client.Database(db)}
 }

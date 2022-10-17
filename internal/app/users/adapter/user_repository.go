@@ -3,6 +3,7 @@ package adapter
 import (
 	"context"
 	"github.com/elizabeth-dev/FACEIT_Test/internal/app/users/domain/user"
+	"github.com/elizabeth-dev/FACEIT_Test/internal/pkg/helper/mongo_helper"
 	"github.com/elizabeth-dev/FACEIT_Test/internal/pkg/utils/mongo_utils"
 	"github.com/elizabeth-dev/FACEIT_Test/internal/pkg/utils/query_utils"
 	"github.com/pkg/errors"
@@ -31,10 +32,10 @@ type UserModel struct {
 }
 
 type UserRepository struct {
-	col *mongo.Collection
+	col mongo_helper.Collection
 }
 
-func NewUserRepository(dbClient *mongo.Database) UserRepository {
+func NewUserRepository(dbClient mongo_helper.Database) UserRepository {
 	if dbClient == nil {
 		panic("[UserRepository] missing dbClient")
 	}
@@ -49,7 +50,7 @@ func (r *UserRepository) AddUser(ctx context.Context, newUser *user.User) error 
 	userModel := r.marshalUser(newUser)
 
 	if _, err := r.col.InsertOne(ctx, userModel); err != nil {
-		return err
+		return errors.Wrap(err, "[UserRepository] Error creating user")
 	}
 
 	return nil
@@ -60,10 +61,10 @@ func (r *UserRepository) GetUserById(ctx context.Context, userId string) (*user.
 
 	if err := r.col.FindOne(ctx, bson.M{"id": userId}).Decode(&userModel); err != nil {
 		if err == mongo.ErrNoDocuments {
-			return nil, errors.Wrap(err, "[UserRepository] User not found")
+			return nil, errors.New("[UserRepository] User not found")
 		}
 
-		return nil, err
+		return nil, errors.Wrap(err, "[UserRepository] Error retrieving user")
 	}
 
 	dbUser := user.UnmarshalUserFromDB(
@@ -90,8 +91,6 @@ func (r *UserRepository) GetUsers(
 	sort []query_utils.Sort,
 	pagination query_utils.Pagination,
 ) ([]*user.User, error) {
-	var users []*user.User
-
 	filter := mongo_utils.MapFilterToBson(queryFilters)
 	opts := &options.FindOptions{
 		Limit: &pagination.Limit,
@@ -107,6 +106,7 @@ func (r *UserRepository) GetUsers(
 		return nil, errors.Wrap(err, "[UserRepository] Error retrieving users")
 	}
 
+	var users []*user.User
 	for cur.Next(ctx) {
 		var userModel UserModel
 

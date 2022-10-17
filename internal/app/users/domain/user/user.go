@@ -6,6 +6,9 @@ import (
 	"time"
 )
 
+var nowFunc = time.Now
+var hashFunc = bcrypt.GenerateFromPassword
+
 /*
 A User holds our domain model for a user entity.
 
@@ -83,6 +86,7 @@ func (u *User) Update(
 		}
 
 		u.firstName = *firstName
+		u.updatedAt = nowFunc()
 	}
 
 	if lastName != nil {
@@ -91,6 +95,7 @@ func (u *User) Update(
 		}
 
 		u.lastName = *lastName
+		u.updatedAt = nowFunc()
 	}
 
 	if nickname != nil {
@@ -99,6 +104,7 @@ func (u *User) Update(
 		}
 
 		u.nickname = *nickname
+		u.updatedAt = nowFunc()
 	}
 
 	if password != nil {
@@ -113,6 +119,7 @@ func (u *User) Update(
 		}
 
 		u.password = hashedPassword
+		u.updatedAt = nowFunc()
 	}
 
 	if email != nil {
@@ -121,6 +128,7 @@ func (u *User) Update(
 		}
 
 		u.email = *email
+		u.updatedAt = nowFunc()
 	}
 
 	if country != nil {
@@ -129,9 +137,8 @@ func (u *User) Update(
 		}
 
 		u.country = *country
+		u.updatedAt = nowFunc()
 	}
-
-	u.updatedAt = time.Now()
 
 	return nil
 }
@@ -185,7 +192,7 @@ func CreateUser(
 		return nil, errors.Wrap(err, "[User] Error hashing password")
 	}
 
-	now := time.Now()
+	now := nowFunc()
 
 	return &User{
 		id:        id,
@@ -245,10 +252,10 @@ Now, here I've been making some research, as the OWASP foundation guidelines rec
 I've run a simple benchmark on bcrypt cost values. On my computer 13 rounds take ~600ms, while 14 rounds take ~1200ms. So I'm using 14 rounds, as it's closer to the general rule of 1 second.
 */
 func hashPassword(password string) (string, error) {
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), 14)
+	hashedPassword, err := hashFunc([]byte(password), 14)
 
 	if err != nil {
-		return "", errors.Wrap(err, "[User] Error hashing password")
+		return "", err
 	}
 
 	return string(hashedPassword), nil

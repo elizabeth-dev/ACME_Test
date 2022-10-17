@@ -6,3 +6,10 @@ package package.user:
 
 run run.compose:
 	@sh -c "'$(CURDIR)/scripts/run.compose.sh'"
+
+.PHONY: mocks
+mocks:
+	@sh -c "'$(CURDIR)/scripts/mocks.sh'"
+
+test:
+	@sh -c "'$(CURDIR)/scripts/test.sh'"

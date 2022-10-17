@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/elizabeth-dev/FACEIT_Test/internal/app/users/domain/user"
 	"github.com/elizabeth-dev/FACEIT_Test/internal/pkg/utils/query_utils"
+	"github.com/pkg/errors"
 )
 
 /*
@@ -20,23 +21,27 @@ type GetUsers struct {
 	Pagination query_utils.Pagination
 }
 
-type GetUsersHandler struct {
-	userRepo user.Repository
+type IGetUsersHandler interface {
+	Handle(ctx context.Context, query GetUsers) ([]*User, error)
 }
 
-func NewGetUsersHandler(userRepo user.Repository) GetUsersHandler {
+type GetUsersHandler struct {
+	userRepo user.UserRepository
+}
+
+func NewGetUsersHandler(userRepo user.UserRepository) *GetUsersHandler {
 	if userRepo == nil {
 		panic("[query/get_users] nil userRepo")
 	}
 
-	return GetUsersHandler{userRepo}
+	return &GetUsersHandler{userRepo}
 }
 
 func (h *GetUsersHandler) Handle(ctx context.Context, query GetUsers) ([]*User, error) {
 	usersResult, err := h.userRepo.GetUsers(ctx, query.Filters, query.Sort, query.Pagination)
 
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "[query/get_users] Error retrieving users from database")
 	}
 
 	var users []*User

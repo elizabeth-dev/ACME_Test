@@ -10,16 +10,20 @@ import (
 The RemoveUser command removes a user from our platform given its id.
 */
 
-type RemoveUserHandler struct {
-	userRepo user.Repository
+type IRemoveUserHandler interface {
+	Handle(ctx context.Context, userId string) error
 }
 
-func NewRemoveUserHandler(userRepo user.Repository) RemoveUserHandler {
+type RemoveUserHandler struct {
+	userRepo user.UserRepository
+}
+
+func NewRemoveUserHandler(userRepo user.UserRepository) *RemoveUserHandler {
 	if userRepo == nil {
 		panic("[command/remove_user] nil userRepo")
 	}
 
-	return RemoveUserHandler{userRepo}
+	return &RemoveUserHandler{userRepo}
 }
 
 func (h *RemoveUserHandler) Handle(ctx context.Context, userId string) error {

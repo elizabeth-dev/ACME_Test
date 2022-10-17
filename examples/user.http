@@ -17,20 +17,20 @@ GRPC localhost:8080/test.elizabeth.faceit.api.v1.UserService/GetUsers
 	"filters": [
 		{
 			"field": "nickname",
-			"operator": "EQUALS",
+			"operator": "LESS_THAN",
 			"string_value": "elizabeth-dev"
 		}
 	],
-    "sort": [
-        {
-          "field": "created_at",
-          "direction": "ASC"
-        }
-    ],
-    "pagination": {
-        "limit": 2,
-        "offset": 0
-    }
+	"sort": [
+		{
+			"field": "created_at",
+			"direction": "ASC"
+		}
+	],
+	"pagination": {
+		"limit": 0,
+		"offset": 0
+	}
 }
 
 ###
@@ -38,8 +38,8 @@ GRPC localhost:8080/test.elizabeth.faceit.api.v1.UserService/GetUsers
 GRPC localhost:8080/test.elizabeth.faceit.api.v1.UserService/UpdateUser
 
 {
-    "id": "c6822b6a-e502-4602-837d-faf563ad66e1",
-    "nickname": "elizabeth-dev-2"
+	"id": "1cc41d24-1b9a-4042-82b9-5af83ff9a208",
+	"nickname": "elizabeth-dev-2"
 }
 
 ###
@@ -47,5 +47,5 @@ GRPC localhost:8080/test.elizabeth.faceit.api.v1.UserService/UpdateUser
 GRPC localhost:8080/test.elizabeth.faceit.api.v1.UserService/RemoveUser
 
 {
-    "id": "c31b77ce-a29a-4333-adf6-ced9a32420c8"
+	"id": "1cc41d24-1b9a-4042-82b9-5af83ff9a208"
 }

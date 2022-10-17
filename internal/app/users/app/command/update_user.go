@@ -19,16 +19,20 @@ type UpdateUser struct {
 	Country   *string
 }
 
-type UpdateUserHandler struct {
-	userRepo user.Repository
+type IUpdateUserHandler interface {
+	Handle(ctx context.Context, cmd UpdateUser) error
 }
 
-func NewUpdateUserHandler(userRepo user.Repository) UpdateUserHandler {
+type UpdateUserHandler struct {
+	userRepo user.UserRepository
+}
+
+func NewUpdateUserHandler(userRepo user.UserRepository) *UpdateUserHandler {
 	if userRepo == nil {
 		panic("[command/update_user] nil userRepo")
 	}
 
-	return UpdateUserHandler{userRepo}
+	return &UpdateUserHandler{userRepo}
 }
 
 func (h *UpdateUserHandler) Handle(ctx context.Context, cmd UpdateUser) error {

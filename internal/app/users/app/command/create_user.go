@@ -19,16 +19,20 @@ type CreateUser struct {
 	Country   string
 }
 
-type CreateUserHandler struct {
-	userRepo user.Repository
+type ICreateUserHandler interface {
+	Handle(ctx context.Context, cmd CreateUser) (string, error)
 }
 
-func NewCreateUserHandler(userRepo user.Repository) CreateUserHandler {
+type CreateUserHandler struct {
+	userRepo user.UserRepository
+}
+
+func NewCreateUserHandler(userRepo user.UserRepository) *CreateUserHandler {
 	if userRepo == nil {
 		panic("[command/create_user] nil userRepo")
 	}
 
-	return CreateUserHandler{userRepo}
+	return &CreateUserHandler{userRepo}
 }
 
 func (h *CreateUserHandler) Handle(ctx context.Context, cmd CreateUser) (string, error) {

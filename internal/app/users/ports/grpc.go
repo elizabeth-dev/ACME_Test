@@ -147,7 +147,7 @@ func (g *GrpcServer) UpdateUser(ctx context.Context, request *apiV1.UpdateUserRe
 
 func (g *GrpcServer) RemoveUser(ctx context.Context, request *apiV1.RemoveUserRequest) (*emptypb.Empty, error) {
 	if request.GetId() == "" {
-		return nil, status.Error(codes.InvalidArgument, "[Removeuser] id is required")
+		return nil, status.Error(codes.InvalidArgument, "[RemoveUser] id is required")
 	}
 
 	err := g.app.Commands.RemoveUser.Handle(ctx, request.GetId())

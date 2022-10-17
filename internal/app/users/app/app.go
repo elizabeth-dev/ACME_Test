@@ -11,12 +11,12 @@ type Application struct {
 }
 
 type Commands struct {
-	CreateUser command.CreateUserHandler
-	RemoveUser command.RemoveUserHandler
-	UpdateUser command.UpdateUserHandler
+	CreateUser command.ICreateUserHandler
+	RemoveUser command.IRemoveUserHandler
+	UpdateUser command.IUpdateUserHandler
 }
 
 type Queries struct {
-	GetUsers    query.GetUsersHandler
-	GetUserById query.GetUserByIdHandler
+	GetUsers    query.IGetUsersHandler
+	GetUserById query.IGetUserByIdHandler
 }
