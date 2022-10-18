@@ -2,6 +2,7 @@ package command
 
 import (
 	"context"
+	"github.com/elizabeth-dev/FACEIT_Test/internal/app/users/domain/user"
 	"github.com/elizabeth-dev/FACEIT_Test/mocks"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
@@ -12,10 +13,11 @@ func TestRemoveUser(t *testing.T) {
 	t.Parallel()
 
 	for name, test := range map[string]func(t *testing.T){
-		"initialize remove user handler":              testNewRemoveUserHandler,
-		"initialize remove user handler without repo": testNewRemoveUserHandlerWithoutRepo,
-		"handle remove user command":                  testHandleRemoveUser,
-		"handle remove user command with repo error":  testHandleRemoveUserWithRepoError,
+		"initialize remove user handler":                  testNewRemoveUserHandler,
+		"initialize remove user handler without repo":     testNewRemoveUserHandlerWithoutRepo,
+		"handle remove user command":                      testHandleRemoveUser,
+		"handle remove user command with error on get":    testHandleRemoveUserWithGetError,
+		"handle remove user command with error on remove": testHandleRemoveUserWithRemoveError,
 	} {
 		test := test
 		t.Run(
@@ -53,31 +55,53 @@ func testHandleRemoveUser(t *testing.T) {
 
 	ctx := context.Background()
 
-	removeId := "1234"
+	removeId := user.User1.Id()
 
+	mockRepo.On("GetUserById", ctx, removeId).Return(&user.User1, nil)
 	mockRepo.On("RemoveUser", ctx, removeId).Return(nil)
 
 	err := handler.Handle(ctx, removeId)
 
 	mockRepo.AssertExpectations(t)
 	mockRepo.AssertNumberOfCalls(t, "RemoveUser", 1)
+	mockRepo.AssertNumberOfCalls(t, "GetUserById", 1)
 
 	assert.NoError(t, err)
 }
 
-func testHandleRemoveUserWithRepoError(t *testing.T) {
+func testHandleRemoveUserWithGetError(t *testing.T) {
 	mockRepo := new(mocks.UserRepository)
 	handler := RemoveUserHandler{mockRepo}
 
 	ctx := context.Background()
-	removedId := "1234"
+	removeId := user.User1.Id()
 
-	mockRepo.On("RemoveUser", ctx, removedId).Return(errors.New("db is down"))
+	mockRepo.On("GetUserById", ctx, removeId).Return(nil, errors.New("db is down"))
 
-	err := handler.Handle(ctx, removedId)
+	err := handler.Handle(ctx, removeId)
 
+	mockRepo.AssertNumberOfCalls(t, "GetUserById", 1)
+	mockRepo.AssertNumberOfCalls(t, "RemoveUser", 0)
+	mockRepo.AssertExpectations(t)
+
+	assert.EqualError(t, err, "[command/remove_user] Error retrieving user "+removeId+" from database: db is down")
+}
+
+func testHandleRemoveUserWithRemoveError(t *testing.T) {
+	mockRepo := new(mocks.UserRepository)
+	handler := RemoveUserHandler{mockRepo}
+
+	ctx := context.Background()
+	removeId := user.User1.Id()
+
+	mockRepo.On("GetUserById", ctx, removeId).Return(&user.User1, nil)
+	mockRepo.On("RemoveUser", ctx, removeId).Return(errors.New("db is down"))
+
+	err := handler.Handle(ctx, removeId)
+
+	mockRepo.AssertNumberOfCalls(t, "GetUserById", 1)
 	mockRepo.AssertNumberOfCalls(t, "RemoveUser", 1)
 	mockRepo.AssertExpectations(t)
 
-	assert.EqualError(t, err, "[command/remove_user] Error removing user 1234 from database: db is down")
+	assert.EqualError(t, err, "[command/remove_user] Error removing user "+removeId+" from database: db is down")
 }

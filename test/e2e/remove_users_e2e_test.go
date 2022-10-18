@@ -27,6 +27,14 @@ func testRemoveUsersE2E(t *testing.T, client apiV1.UserServiceClient) {
 			testRemoveInvalidUser(t, client)
 		},
 	)
+
+	t.Run(
+		"remove nonexistent user", func(t *testing.T) {
+			t.Parallel()
+
+			testRemoveNonexistentUser(t, client)
+		},
+	)
 }
 
 func testRemoveUser1(t *testing.T, client apiV1.UserServiceClient) {
@@ -50,5 +58,24 @@ func testRemoveInvalidUser(t *testing.T, client apiV1.UserServiceClient) {
 	)
 
 	assert.ErrorIs(t, err, status.Error(codes.InvalidArgument, "[RemoveUser] id is required"))
+	assert.Nil(t, out)
+}
+
+func testRemoveNonexistentUser(t *testing.T, client apiV1.UserServiceClient) {
+	id := "nonexistent"
+	out, err := client.RemoveUser(
+		context.Background(), &apiV1.RemoveUserRequest{
+			Id: id,
+		},
+	)
+
+	assert.ErrorIs(
+		t,
+		err,
+		status.Error(
+			codes.Internal,
+			"[command/remove_user] Error retrieving user "+id+" from database: [UserRepository] User not found",
+		),
+	)
 	assert.Nil(t, out)
 }
