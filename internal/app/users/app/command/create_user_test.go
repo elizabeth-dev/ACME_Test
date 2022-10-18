@@ -2,6 +2,7 @@ package command
 
 import (
 	"context"
+	pkgErrors "github.com/elizabeth-dev/FACEIT_Test/internal/pkg/errors"
 	"github.com/elizabeth-dev/FACEIT_Test/mocks"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
@@ -95,7 +96,7 @@ func testHandleCreateUserWithUserError(t *testing.T) {
 
 	mockRepo.AssertNumberOfCalls(t, "AddUser", 0)
 
-	assert.ErrorContains(t, err, "[command/create_user] Error generating new user:")
+	assert.IsType(t, &pkgErrors.MultipleInvalidFields{}, err)
 	assert.Empty(t, out)
 
 }
@@ -106,7 +107,8 @@ func testHandleCreateUserWithRepoError(t *testing.T) {
 
 	ctx := context.Background()
 
-	mockRepo.On("AddUser", ctx, mock.Anything).Return(errors.New("db is down"))
+	dbErr := errors.New("db is down")
+	mockRepo.On("AddUser", ctx, mock.Anything).Return(dbErr)
 
 	out, err := handler.Handle(
 		ctx, CreateUser{
@@ -122,6 +124,6 @@ func testHandleCreateUserWithRepoError(t *testing.T) {
 	mockRepo.AssertNumberOfCalls(t, "AddUser", 1)
 	mockRepo.AssertExpectations(t)
 
-	assert.EqualError(t, err, "[command/create_user] Error inserting new user into database: db is down")
+	assert.ErrorIs(t, err, dbErr)
 	assert.Empty(t, out)
 }

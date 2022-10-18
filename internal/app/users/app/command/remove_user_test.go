@@ -76,7 +76,8 @@ func testHandleRemoveUserWithGetError(t *testing.T) {
 	ctx := context.Background()
 	removeId := user.User1.Id()
 
-	mockRepo.On("GetUserById", ctx, removeId).Return(nil, errors.New("db is down"))
+	dbErr := errors.New("db is down")
+	mockRepo.On("GetUserById", ctx, removeId).Return(nil, dbErr)
 
 	err := handler.Handle(ctx, removeId)
 
@@ -84,7 +85,7 @@ func testHandleRemoveUserWithGetError(t *testing.T) {
 	mockRepo.AssertNumberOfCalls(t, "RemoveUser", 0)
 	mockRepo.AssertExpectations(t)
 
-	assert.EqualError(t, err, "[command/remove_user] Error retrieving user "+removeId+" from database: db is down")
+	assert.ErrorIs(t, err, dbErr)
 }
 
 func testHandleRemoveUserWithRemoveError(t *testing.T) {
@@ -95,7 +96,8 @@ func testHandleRemoveUserWithRemoveError(t *testing.T) {
 	removeId := user.User1.Id()
 
 	mockRepo.On("GetUserById", ctx, removeId).Return(&user.User1, nil)
-	mockRepo.On("RemoveUser", ctx, removeId).Return(errors.New("db is down"))
+	dbErr := errors.New("db is down")
+	mockRepo.On("RemoveUser", ctx, removeId).Return(dbErr)
 
 	err := handler.Handle(ctx, removeId)
 
@@ -103,5 +105,5 @@ func testHandleRemoveUserWithRemoveError(t *testing.T) {
 	mockRepo.AssertNumberOfCalls(t, "RemoveUser", 1)
 	mockRepo.AssertExpectations(t)
 
-	assert.EqualError(t, err, "[command/remove_user] Error removing user "+removeId+" from database: db is down")
+	assert.ErrorIs(t, err, dbErr)
 }

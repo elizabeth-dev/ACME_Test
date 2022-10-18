@@ -5,8 +5,10 @@ package mocks
 import (
 	context "context"
 
-	mongo_helper "github.com/elizabeth-dev/FACEIT_Test/internal/pkg/helper/mongo_helper"
 	mock "github.com/stretchr/testify/mock"
+	mongo "go.mongodb.org/mongo-driver/mongo"
+
+	mongo_helper "github.com/elizabeth-dev/FACEIT_Test/internal/pkg/helper/mongo_helper"
 
 	options "go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -17,14 +19,16 @@ type Collection struct {
 }
 
 // DeleteOne provides a mock function with given fields: _a0, _a1
-func (_m *Collection) DeleteOne(_a0 context.Context, _a1 interface{}) (int64, error) {
+func (_m *Collection) DeleteOne(_a0 context.Context, _a1 interface{}) (*mongo.DeleteResult, error) {
 	ret := _m.Called(_a0, _a1)
 
-	var r0 int64
-	if rf, ok := ret.Get(0).(func(context.Context, interface{}) int64); ok {
+	var r0 *mongo.DeleteResult
+	if rf, ok := ret.Get(0).(func(context.Context, interface{}) *mongo.DeleteResult); ok {
 		r0 = rf(_a0, _a1)
 	} else {
-		r0 = ret.Get(0).(int64)
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*mongo.DeleteResult)
+		}
 	}
 
 	var r1 error
@@ -107,7 +111,7 @@ func (_m *Collection) InsertOne(_a0 context.Context, _a1 interface{}) (interface
 }
 
 // UpdateOne provides a mock function with given fields: _a0, _a1, _a2, _a3
-func (_m *Collection) UpdateOne(_a0 context.Context, _a1 interface{}, _a2 interface{}, _a3 ...*options.UpdateOptions) (interface{}, error) {
+func (_m *Collection) UpdateOne(_a0 context.Context, _a1 interface{}, _a2 interface{}, _a3 ...*options.UpdateOptions) (*mongo.UpdateResult, error) {
 	_va := make([]interface{}, len(_a3))
 	for _i := range _a3 {
 		_va[_i] = _a3[_i]
@@ -117,12 +121,12 @@ func (_m *Collection) UpdateOne(_a0 context.Context, _a1 interface{}, _a2 interf
 	_ca = append(_ca, _va...)
 	ret := _m.Called(_ca...)
 
-	var r0 interface{}
-	if rf, ok := ret.Get(0).(func(context.Context, interface{}, interface{}, ...*options.UpdateOptions) interface{}); ok {
+	var r0 *mongo.UpdateResult
+	if rf, ok := ret.Get(0).(func(context.Context, interface{}, interface{}, ...*options.UpdateOptions) *mongo.UpdateResult); ok {
 		r0 = rf(_a0, _a1, _a2, _a3...)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(interface{})
+			r0 = ret.Get(0).(*mongo.UpdateResult)
 		}
 	}
 

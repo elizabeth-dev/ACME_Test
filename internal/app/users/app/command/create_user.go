@@ -4,7 +4,6 @@ import (
 	"context"
 	"github.com/elizabeth-dev/FACEIT_Test/internal/app/users/domain/user"
 	"github.com/google/uuid"
-	"github.com/pkg/errors"
 )
 
 /*
@@ -49,11 +48,11 @@ func (h *CreateUserHandler) Handle(ctx context.Context, cmd CreateUser) (string,
 	)
 
 	if err != nil {
-		return "", errors.Wrap(err, "[command/create_user] Error generating new user")
+		return "", err
 	}
 
 	if err := h.userRepo.AddUser(ctx, newUser); err != nil {
-		return "", errors.Wrap(err, "[command/create_user] Error inserting new user into database")
+		return "", err
 	}
 
 	return newId, nil

@@ -3,7 +3,6 @@ package query
 import (
 	"context"
 	"github.com/elizabeth-dev/FACEIT_Test/internal/app/users/domain/user"
-	"github.com/pkg/errors"
 )
 
 /*
@@ -30,7 +29,7 @@ func (h *GetUserByIdHandler) Handle(ctx context.Context, userId string) (*User, 
 	userResult, err := h.userRepo.GetUserById(ctx, userId)
 
 	if err != nil {
-		return nil, errors.Wrap(err, "[query/get_user_by_id] Error retrieving user from database")
+		return nil, err
 	}
 
 	return &User{

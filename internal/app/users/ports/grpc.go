@@ -5,6 +5,7 @@ import (
 	"github.com/elizabeth-dev/FACEIT_Test/internal/app/users/app"
 	"github.com/elizabeth-dev/FACEIT_Test/internal/app/users/app/command"
 	"github.com/elizabeth-dev/FACEIT_Test/internal/app/users/app/query"
+	"github.com/elizabeth-dev/FACEIT_Test/internal/pkg/errors"
 	"github.com/elizabeth-dev/FACEIT_Test/internal/pkg/utils/grpc_utils"
 	"github.com/elizabeth-dev/FACEIT_Test/internal/pkg/utils/query_utils"
 	apiV1 "github.com/elizabeth-dev/FACEIT_Test/pkg/api/v1"
@@ -35,13 +36,21 @@ func (g *GrpcServer) CreateUser(ctx context.Context, request *apiV1.CreateUserRe
 	id, err := g.app.Commands.CreateUser.Handle(ctx, cmd)
 
 	if err != nil {
-		return nil, status.Error(codes.Internal, err.Error())
+		if castErr, ok := err.(*errors.InvalidField); ok {
+			return nil, status.Error(codes.InvalidArgument, castErr.Error())
+		}
+
+		if castErr, ok := err.(*errors.MultipleInvalidFields); ok {
+			return nil, status.Error(codes.InvalidArgument, castErr.Error())
+		}
+
+		return nil, status.Error(codes.Internal, "Unknown error while creating user")
 	}
 
 	newUser, err := g.app.Queries.GetUserById.Handle(ctx, id)
 
 	if err != nil {
-		return nil, status.Error(codes.Internal, err.Error())
+		return nil, status.Error(codes.Unavailable, "The user was created but couldn't be retrieved")
 	}
 
 	return &apiV1.User{
@@ -80,7 +89,7 @@ func (g *GrpcServer) GetUsers(request *apiV1.GetUsersRequest, srv apiV1.UserServ
 	users, err := g.app.Queries.GetUsers.Handle(srv.Context(), getUsersQuery)
 
 	if err != nil {
-		return status.Error(codes.Internal, err.Error())
+		return status.Error(codes.Internal, "Error retrieving users")
 	}
 
 	for _, user := range users {
@@ -97,7 +106,7 @@ func (g *GrpcServer) GetUsers(request *apiV1.GetUsersRequest, srv apiV1.UserServ
 				UpdatedAt: timestamppb.New(user.UpdatedAt),
 			},
 		); err != nil {
-			return status.Error(codes.Internal, err.Error())
+			return status.Error(codes.Internal, "Error sending users")
 		}
 	}
 
@@ -107,7 +116,7 @@ func (g *GrpcServer) GetUsers(request *apiV1.GetUsersRequest, srv apiV1.UserServ
 func (g *GrpcServer) UpdateUser(ctx context.Context, request *apiV1.UpdateUserRequest) (*apiV1.User, error) {
 
 	if request.GetId() == "" {
-		return nil, status.Error(codes.InvalidArgument, "[UpdateUser] id is required")
+		return nil, status.Error(codes.InvalidArgument, "Id is required")
 	}
 
 	cmd := command.UpdateUser{
@@ -123,13 +132,20 @@ func (g *GrpcServer) UpdateUser(ctx context.Context, request *apiV1.UpdateUserRe
 	err := g.app.Commands.UpdateUser.Handle(ctx, cmd)
 
 	if err != nil {
-		return nil, status.Error(codes.Internal, err.Error())
+		if castErr, ok := err.(*errors.InvalidField); ok {
+			return nil, status.Error(codes.InvalidArgument, castErr.Error())
+		}
+		if castErr, ok := err.(*errors.MultipleInvalidFields); ok {
+			return nil, status.Error(codes.InvalidArgument, castErr.Error())
+		}
+
+		return nil, status.Error(codes.Internal, "Unknown error while updating user")
 	}
 
 	updatedUser, err := g.app.Queries.GetUserById.Handle(ctx, request.GetId())
 
 	if err != nil {
-		return nil, status.Error(codes.Internal, err.Error())
+		return nil, status.Error(codes.Unavailable, "The user was updated but couldn't be retrieved")
 	}
 
 	return &apiV1.User{
@@ -147,13 +163,13 @@ func (g *GrpcServer) UpdateUser(ctx context.Context, request *apiV1.UpdateUserRe
 
 func (g *GrpcServer) RemoveUser(ctx context.Context, request *apiV1.RemoveUserRequest) (*emptypb.Empty, error) {
 	if request.GetId() == "" {
-		return nil, status.Error(codes.InvalidArgument, "[RemoveUser] id is required")
+		return nil, status.Error(codes.InvalidArgument, "Id is required")
 	}
 
 	err := g.app.Commands.RemoveUser.Handle(ctx, request.GetId())
 
 	if err != nil {
-		return nil, status.Error(codes.Internal, err.Error())
+		return nil, status.Error(codes.Internal, "Unknown error while removing user")
 	}
 
 	return &emptypb.Empty{}, nil

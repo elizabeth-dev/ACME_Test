@@ -3,13 +3,14 @@ package adapter
 import (
 	"context"
 	"github.com/elizabeth-dev/FACEIT_Test/internal/app/users/domain/user"
+	"github.com/elizabeth-dev/FACEIT_Test/internal/pkg/errors"
 	"github.com/elizabeth-dev/FACEIT_Test/internal/pkg/helper/mongo_helper"
 	"github.com/elizabeth-dev/FACEIT_Test/internal/pkg/utils/mongo_utils"
 	"github.com/elizabeth-dev/FACEIT_Test/internal/pkg/utils/query_utils"
-	"github.com/pkg/errors"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"log"
 	"time"
 )
 
@@ -35,9 +36,11 @@ type UserRepository struct {
 	col mongo_helper.Collection
 }
 
+const UserRepoTag = "UserRepository"
+
 func NewUserRepository(dbClient mongo_helper.Database) UserRepository {
 	if dbClient == nil {
-		panic("[UserRepository] missing dbClient")
+		log.Panicf("[%s] missing dbClient", UserRepoTag)
 	}
 
 	return UserRepository{col: dbClient.Collection("user")}
@@ -50,7 +53,7 @@ func (r *UserRepository) AddUser(ctx context.Context, newUser *user.User) error 
 	userModel := r.marshalUser(newUser)
 
 	if _, err := r.col.InsertOne(ctx, userModel); err != nil {
-		return errors.Wrap(err, "[UserRepository] Error creating user")
+		return &errors.Unknown{Tag: UserRepoTag, Cause: err}
 	}
 
 	return nil
@@ -61,10 +64,10 @@ func (r *UserRepository) GetUserById(ctx context.Context, userId string) (*user.
 
 	if err := r.col.FindOne(ctx, bson.M{"id": userId}).Decode(&userModel); err != nil {
 		if err == mongo.ErrNoDocuments {
-			return nil, errors.New("[UserRepository] User not found")
+			return nil, &user.NotFoundError{Id: userId}
 		}
 
-		return nil, errors.Wrap(err, "[UserRepository] Error retrieving user")
+		return nil, &errors.Unknown{Tag: UserRepoTag, Cause: err}
 	}
 
 	dbUser := user.UnmarshalUserFromDB(
@@ -86,10 +89,7 @@ func (r *UserRepository) GetUserById(ctx context.Context, userId string) (*user.
 GetUsers retrieves the user entities from the database.
 */
 func (r *UserRepository) GetUsers(
-	ctx context.Context,
-	queryFilters []query_utils.Filter,
-	sort []query_utils.Sort,
-	pagination query_utils.Pagination,
+	ctx context.Context, queryFilters []query_utils.Filter, sort []query_utils.Sort, pagination query_utils.Pagination,
 ) ([]*user.User, error) {
 	filter := mongo_utils.MapFilterToBson(queryFilters)
 	opts := &options.FindOptions{
@@ -103,7 +103,7 @@ func (r *UserRepository) GetUsers(
 
 	cur, err := r.col.Find(ctx, filter, opts)
 	if err != nil {
-		return nil, errors.Wrap(err, "[UserRepository] Error retrieving users")
+		return nil, &errors.Unknown{Tag: UserRepoTag, Cause: err}
 	}
 
 	var users []*user.User
@@ -111,7 +111,7 @@ func (r *UserRepository) GetUsers(
 		var userModel UserModel
 
 		if err := cur.Decode(&userModel); err != nil {
-			return nil, errors.Wrap(err, "[UserRepository] Error decoding user")
+			return nil, &errors.Unknown{Tag: UserRepoTag, Cause: err}
 		}
 
 		dbUser := user.UnmarshalUserFromDB(
@@ -135,13 +135,17 @@ func (r *UserRepository) GetUsers(
 /*
 UpdateUser fully updates a user entity in the database.
 */
-func (r *UserRepository) UpdateUser(ctx context.Context, user *user.User) error {
-	userModel := r.marshalUser(user)
+func (r *UserRepository) UpdateUser(ctx context.Context, userToUpdate *user.User) error {
+	userModel := r.marshalUser(userToUpdate)
 
-	_, err := r.col.UpdateOne(ctx, bson.M{"id": user.Id()}, bson.D{{Key: "$set", Value: userModel}})
+	res, err := r.col.UpdateOne(ctx, bson.M{"id": userToUpdate.Id()}, bson.D{{Key: "$set", Value: userModel}})
 
 	if err != nil {
-		return errors.Wrap(err, "[UserRepository] Error updating user "+user.Id())
+		return &errors.Unknown{Tag: UserRepoTag, Cause: err}
+	}
+
+	if res.MatchedCount == 0 {
+		return &user.NotFoundError{Id: userToUpdate.Id()}
 	}
 
 	return nil
@@ -151,10 +155,14 @@ func (r *UserRepository) UpdateUser(ctx context.Context, user *user.User) error 
 RemoveUser removes a user entity from the database given its id.
 */
 func (r *UserRepository) RemoveUser(ctx context.Context, userId string) error {
-	_, err := r.col.DeleteOne(ctx, bson.M{"id": userId})
+	res, err := r.col.DeleteOne(ctx, bson.M{"id": userId})
 
 	if err != nil {
-		return errors.Wrap(err, "[UserRepository] Error deleting user "+userId)
+		return &errors.Unknown{Tag: UserRepoTag, Cause: err}
+	}
+
+	if res.DeletedCount == 0 {
+		return &user.NotFoundError{Id: userId}
 	}
 
 	return nil

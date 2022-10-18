@@ -1,13 +1,15 @@
 package user
 
 import (
-	"github.com/pkg/errors"
+	"github.com/elizabeth-dev/FACEIT_Test/internal/pkg/errors"
 	"golang.org/x/crypto/bcrypt"
 	"time"
 )
 
 var nowFunc = time.Now
 var hashFunc = bcrypt.GenerateFromPassword
+
+const domain = "User"
 
 /*
 A User holds our domain model for a user entity.
@@ -71,49 +73,85 @@ func (u *User) Update(
 	firstName *string, lastName *string, nickname *string, password *string, email *string, country *string,
 ) error {
 	/* Validation */
-	var errorAcc []error
+	var invalidFields []error
 	if firstName != nil {
 		if *firstName == "" {
-			errorAcc = append(errorAcc, errors.New("[User] Empty first name"))
+			invalidFields = append(
+				invalidFields, &errors.InvalidField{
+					Domain: domain,
+					Field:  "first_name",
+					Value:  *firstName,
+				},
+			)
 		}
 	}
 
 	if lastName != nil {
 		if *lastName == "" {
-			errorAcc = append(errorAcc, errors.New("[User] Empty last name"))
+			invalidFields = append(
+				invalidFields, &errors.InvalidField{
+					Domain: domain,
+					Field:  "last_name",
+					Value:  *lastName,
+				},
+			)
 		}
 	}
 
 	if nickname != nil {
 		if *nickname == "" {
-			errorAcc = append(errorAcc, errors.New("[User] Empty nickname"))
+			invalidFields = append(
+				invalidFields, &errors.InvalidField{
+					Domain: domain,
+					Field:  "nickname",
+					Value:  *nickname,
+				},
+			)
 		}
 	}
 
 	if password != nil {
 		if *password == "" {
-			errorAcc = append(errorAcc, errors.New("[User] Empty password"))
+			invalidFields = append(
+				invalidFields, &errors.InvalidField{
+					Domain: domain,
+					Field:  "password",
+					Value:  *password,
+				},
+			)
 		}
 	}
 
 	if email != nil {
 		if *email == "" {
-			errorAcc = append(errorAcc, errors.New("[User] Empty email"))
+			invalidFields = append(
+				invalidFields, &errors.InvalidField{
+					Domain: domain,
+					Field:  "email",
+					Value:  *email,
+				},
+			)
 		}
 	}
 
 	if country != nil {
 		if *country == "" {
-			errorAcc = append(errorAcc, errors.New("[User] Empty country"))
+			invalidFields = append(
+				invalidFields, &errors.InvalidField{
+					Domain: domain,
+					Field:  "country",
+					Value:  *country,
+				},
+			)
 		}
 	}
 
-	if len(errorAcc) == 1 {
-		return errorAcc[0]
+	if len(invalidFields) == 1 {
+		return invalidFields[0]
 	}
 
-	if len(errorAcc) > 1 {
-		return errors.New("[User] Multiple errors")
+	if len(invalidFields) > 1 {
+		return &errors.MultipleInvalidFields{Errors: invalidFields}
 	}
 
 	/* Update */
@@ -137,7 +175,10 @@ func (u *User) Update(
 		hashedPassword, err := hashPassword(*password)
 
 		if err != nil {
-			return errors.Wrap(err, "[User] Error hashing password")
+			return &errors.Unknown{
+				Tag:   domain,
+				Cause: err,
+			}
 		}
 
 		u.password = hashedPassword
@@ -172,48 +213,93 @@ specific properties like createdAt.
 func CreateUser(
 	id string, firstName string, lastName string, nickname string, password string, email string, country string,
 ) (*User, error) {
-	var errorAcc []error
+	var invalidFields []error
 
 	if id == "" {
-		errorAcc = append(errorAcc, errors.New("[User] Empty id"))
+		invalidFields = append(
+			invalidFields, &errors.InvalidField{
+				Domain: domain,
+				Field:  "id",
+				Value:  id,
+			},
+		)
 	}
 
 	if firstName == "" {
-		errorAcc = append(errorAcc, errors.New("[User] Empty first name"))
+		invalidFields = append(
+			invalidFields, &errors.InvalidField{
+				Domain: domain,
+				Field:  "first_name",
+				Value:  firstName,
+			},
+		)
 	}
 
 	if lastName == "" {
-		errorAcc = append(errorAcc, errors.New("[User] Empty last name"))
+		invalidFields = append(
+			invalidFields, &errors.InvalidField{
+				Domain: domain,
+				Field:  "last_name",
+				Value:  lastName,
+			},
+		)
 	}
 
 	if nickname == "" {
-		errorAcc = append(errorAcc, errors.New("[User] Empty nickname"))
+		invalidFields = append(
+			invalidFields, &errors.InvalidField{
+				Domain: domain,
+				Field:  "nickname",
+				Value:  nickname,
+			},
+		)
 	}
 
 	if password == "" {
-		errorAcc = append(errorAcc, errors.New("[User] Empty password"))
+		invalidFields = append(
+			invalidFields, &errors.InvalidField{
+				Domain: domain,
+				Field:  "password",
+				Value:  password,
+			},
+		)
 	}
 
 	if email == "" {
-		errorAcc = append(errorAcc, errors.New("[User] Empty email"))
+		invalidFields = append(
+			invalidFields, &errors.InvalidField{
+				Domain: domain,
+				Field:  "email",
+				Value:  email,
+			},
+		)
 	}
 
 	if country == "" {
-		errorAcc = append(errorAcc, errors.New("[User] Empty country"))
+		invalidFields = append(
+			invalidFields, &errors.InvalidField{
+				Domain: domain,
+				Field:  "country",
+				Value:  country,
+			},
+		)
 	}
 
 	hashedPassword, err := hashPassword(password)
 
 	if err != nil {
-		errorAcc = append(errorAcc, errors.Wrap(err, "[User] Error hashing password"))
+		return nil, &errors.Unknown{
+			Tag:   domain,
+			Cause: err,
+		}
 	}
 
-	if len(errorAcc) == 1 {
-		return nil, errorAcc[0]
+	if len(invalidFields) == 1 {
+		return nil, invalidFields[0]
 	}
 
-	if len(errorAcc) > 1 {
-		return nil, errors.New("[User] Multiple errors")
+	if len(invalidFields) > 1 {
+		return nil, &errors.MultipleInvalidFields{Errors: invalidFields}
 	}
 
 	now := nowFunc()

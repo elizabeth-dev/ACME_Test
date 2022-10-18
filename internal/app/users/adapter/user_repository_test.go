@@ -3,6 +3,7 @@ package adapter
 import (
 	"context"
 	"github.com/elizabeth-dev/FACEIT_Test/internal/app/users/domain/user"
+	pkgErrors "github.com/elizabeth-dev/FACEIT_Test/internal/pkg/errors"
 	"github.com/elizabeth-dev/FACEIT_Test/internal/pkg/utils/mongo_utils"
 	"github.com/elizabeth-dev/FACEIT_Test/internal/pkg/utils/query_utils"
 	"github.com/elizabeth-dev/FACEIT_Test/internal/pkg/utils/query_utils/operators"
@@ -52,12 +53,14 @@ func TestUserRepository(t *testing.T) {
 			"call get users with decode error": testGetUsersWithDecodeError,
 		},
 		"update user": {
-			"call update user":               testUpdateUser,
-			"call update user with db error": testUpdateUserWithDbError,
+			"call update user":                testUpdateUser,
+			"call update user with not found": testUpdateUserNotFound,
+			"call update user with db error":  testUpdateUserWithDbError,
 		},
 		"remove user": {
-			"call remove user":               testRemoveUser,
-			"call remove user with db error": testRemoveUserWithDbError,
+			"call remove user":                testRemoveUser,
+			"call remove user with not found": testRemoveUserNotFound,
+			"call remove user with db error":  testRemoveUserWithDbError,
 		},
 		"marshal user": {
 			"call marshal user": testMarshalUser,
@@ -128,14 +131,20 @@ func testAddUserWithDbError(t *testing.T) {
 	ctx := context.Background()
 	newUser := &user.User1
 
-	mockCollection.On("InsertOne", ctx, &marshalledUser).Return(nil, errors.New("db error"))
+	dbError := errors.New("db error")
+	mockCollection.On("InsertOne", ctx, &marshalledUser).Return(nil, dbError)
 
 	err := repo.AddUser(ctx, newUser)
 
 	mockCollection.AssertNumberOfCalls(t, "InsertOne", 1)
 	mockCollection.AssertExpectations(t)
 
-	assert.EqualError(t, err, "[UserRepository] Error creating user: db error")
+	assert.Equal(
+		t, err, &pkgErrors.Unknown{
+			Tag:   UserRepoTag,
+			Cause: dbError,
+		},
+	)
 }
 
 func testGetUserById(t *testing.T) {
@@ -172,8 +181,9 @@ func testGetUserByIdWithDecodeError(t *testing.T) {
 	ctx := context.Background()
 	id := "1234"
 
+	decodeErr := errors.New("decode error")
 	mockCollection.On("FindOne", ctx, bson.M{"id": id}).Return(mockSingleResult, nil)
-	mockSingleResult.On("Decode", &UserModel{}).Return(errors.New("decode error"))
+	mockSingleResult.On("Decode", &UserModel{}).Return(decodeErr)
 
 	out, err := repo.GetUserById(ctx, id)
 
@@ -182,7 +192,12 @@ func testGetUserByIdWithDecodeError(t *testing.T) {
 	mockSingleResult.AssertExpectations(t)
 	mockCollection.AssertExpectations(t)
 
-	assert.EqualError(t, err, "[UserRepository] Error retrieving user: decode error")
+	assert.Equal(
+		t, err, &pkgErrors.Unknown{
+			Tag:   UserRepoTag,
+			Cause: decodeErr,
+		},
+	)
 	assert.Nil(t, out)
 }
 
@@ -204,7 +219,7 @@ func testGetUserByIdWithEmptyResponse(t *testing.T) {
 	mockSingleResult.AssertExpectations(t)
 	mockCollection.AssertExpectations(t)
 
-	assert.EqualError(t, err, "[UserRepository] User not found")
+	assert.Equal(t, &user.NotFoundError{Id: id}, err)
 	assert.Nil(t, out)
 }
 
@@ -308,7 +323,8 @@ func testGetUsersWithDbError(t *testing.T) {
 		Skip:  &zero,
 	}
 
-	mockCollection.On("Find", ctx, bson.M{}, &findOptions).Return(nil, errors.New("db error"))
+	dbError := errors.New("db error")
+	mockCollection.On("Find", ctx, bson.M{}, &findOptions).Return(nil, dbError)
 
 	out, err := repo.GetUsers(ctx, nil, nil, query_utils.Pagination{})
 
@@ -318,7 +334,12 @@ func testGetUsersWithDbError(t *testing.T) {
 	mockCursor.AssertExpectations(t)
 	mockCollection.AssertExpectations(t)
 
-	assert.EqualError(t, err, "[UserRepository] Error retrieving users: db error")
+	assert.Equal(
+		t, err, &pkgErrors.Unknown{
+			Tag:   UserRepoTag,
+			Cause: dbError,
+		},
+	)
 	assert.Nil(t, out)
 }
 
@@ -336,9 +357,10 @@ func testGetUsersWithDecodeError(t *testing.T) {
 		Skip:  &zero,
 	}
 
+	decodeError := errors.New("decode error")
 	mockCollection.On("Find", ctx, bson.M{}, &findOptions).Return(mockCursor, nil)
 	mockCursor.On("Next", ctx).Return(true).Once()
-	mockCursor.On("Decode", &UserModel{}).Return(errors.New("decode error"))
+	mockCursor.On("Decode", &UserModel{}).Return(decodeError)
 
 	out, err := repo.GetUsers(ctx, nil, nil, query_utils.Pagination{})
 
@@ -348,7 +370,12 @@ func testGetUsersWithDecodeError(t *testing.T) {
 	mockCursor.AssertExpectations(t)
 	mockCollection.AssertExpectations(t)
 
-	assert.EqualError(t, err, "[UserRepository] Error decoding user: decode error")
+	assert.Equal(
+		t, err, &pkgErrors.Unknown{
+			Tag:   UserRepoTag,
+			Cause: decodeError,
+		},
+	)
 	assert.Nil(t, out)
 }
 
@@ -360,7 +387,7 @@ func testUpdateUser(t *testing.T) {
 
 	mockCollection.On(
 		"UpdateOne", ctx, bson.M{"id": user.User1.Id()}, bson.D{{Key: "$set", Value: &marshalledUser}},
-	).Return(nil, nil)
+	).Return(&mongo.UpdateResult{MatchedCount: 1}, nil)
 
 	err := repo.UpdateUser(ctx, &user.User1)
 
@@ -368,6 +395,24 @@ func testUpdateUser(t *testing.T) {
 	mockCollection.AssertExpectations(t)
 
 	assert.NoError(t, err)
+}
+
+func testUpdateUserNotFound(t *testing.T) {
+	mockCollection := new(mocks.Collection)
+	repo := UserRepository{col: mockCollection}
+
+	ctx := context.Background()
+
+	mockCollection.On(
+		"UpdateOne", ctx, bson.M{"id": user.User1.Id()}, bson.D{{Key: "$set", Value: &marshalledUser}},
+	).Return(&mongo.UpdateResult{MatchedCount: 0}, nil)
+
+	err := repo.UpdateUser(ctx, &user.User1)
+
+	mockCollection.AssertNumberOfCalls(t, "UpdateOne", 1)
+	mockCollection.AssertExpectations(t)
+
+	assert.Equal(t, &user.NotFoundError{Id: user.User1.Id()}, err)
 }
 
 func testUpdateUserWithDbError(t *testing.T) {
@@ -376,10 +421,11 @@ func testUpdateUserWithDbError(t *testing.T) {
 
 	ctx := context.Background()
 
+	dbError := errors.New("db error")
 	mockCollection.On(
 		"UpdateOne", ctx, bson.M{"id": user.User1.Id()}, bson.D{{Key: "$set", Value: &marshalledUser}},
 	).Return(
-		nil, errors.New("db error"),
+		nil, dbError,
 	)
 
 	err := repo.UpdateUser(ctx, &user.User1)
@@ -387,7 +433,12 @@ func testUpdateUserWithDbError(t *testing.T) {
 	mockCollection.AssertNumberOfCalls(t, "UpdateOne", 1)
 	mockCollection.AssertExpectations(t)
 
-	assert.EqualError(t, err, "[UserRepository] Error updating user "+user.User1.Id()+": db error")
+	assert.Equal(
+		t, err, &pkgErrors.Unknown{
+			Tag:   UserRepoTag,
+			Cause: dbError,
+		},
+	)
 }
 
 func testRemoveUser(t *testing.T) {
@@ -396,7 +447,7 @@ func testRemoveUser(t *testing.T) {
 
 	ctx := context.Background()
 
-	mockCollection.On("DeleteOne", ctx, bson.M{"id": user.User1.Id()}).Return(int64(0), nil)
+	mockCollection.On("DeleteOne", ctx, bson.M{"id": user.User1.Id()}).Return(&mongo.DeleteResult{DeletedCount: 1}, nil)
 
 	err := repo.RemoveUser(ctx, user.User1.Id())
 
@@ -406,20 +457,42 @@ func testRemoveUser(t *testing.T) {
 	assert.NoError(t, err)
 }
 
-func testRemoveUserWithDbError(t *testing.T) {
+func testRemoveUserNotFound(t *testing.T) {
 	mockCollection := new(mocks.Collection)
 	repo := UserRepository{col: mockCollection}
 
 	ctx := context.Background()
 
-	mockCollection.On("DeleteOne", ctx, bson.M{"id": user.User1.Id()}).Return(int64(0), errors.New("db error"))
+	mockCollection.On("DeleteOne", ctx, bson.M{"id": user.User1.Id()}).Return(&mongo.DeleteResult{DeletedCount: 0}, nil)
 
 	err := repo.RemoveUser(ctx, user.User1.Id())
 
 	mockCollection.AssertNumberOfCalls(t, "DeleteOne", 1)
 	mockCollection.AssertExpectations(t)
 
-	assert.EqualError(t, err, "[UserRepository] Error deleting user "+user.User1.Id()+": db error")
+	assert.Equal(t, &user.NotFoundError{Id: user.User1.Id()}, err)
+}
+
+func testRemoveUserWithDbError(t *testing.T) {
+	mockCollection := new(mocks.Collection)
+	repo := UserRepository{col: mockCollection}
+
+	ctx := context.Background()
+
+	dbError := errors.New("db error")
+	mockCollection.On("DeleteOne", ctx, bson.M{"id": user.User1.Id()}).Return(nil, dbError)
+
+	err := repo.RemoveUser(ctx, user.User1.Id())
+
+	mockCollection.AssertNumberOfCalls(t, "DeleteOne", 1)
+	mockCollection.AssertExpectations(t)
+
+	assert.Equal(
+		t, err, &pkgErrors.Unknown{
+			Tag:   UserRepoTag,
+			Cause: dbError,
+		},
+	)
 }
 
 func testMarshalUser(t *testing.T) {

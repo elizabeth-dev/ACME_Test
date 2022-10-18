@@ -169,7 +169,8 @@ func testHandleGetUsersWithRepoError(t *testing.T) {
 		Offset: 0,
 	}
 
-	mockRepo.On("GetUsers", ctx, filters, sort, pagination).Return(nil, errors.New("db is down"))
+	dbErr := errors.New("db is down")
+	mockRepo.On("GetUsers", ctx, filters, sort, pagination).Return(nil, dbErr)
 
 	out, err := handler.Handle(
 		ctx, GetUsers{
@@ -182,6 +183,6 @@ func testHandleGetUsersWithRepoError(t *testing.T) {
 	mockRepo.AssertExpectations(t)
 	mockRepo.AssertNumberOfCalls(t, "GetUsers", 1)
 
-	assert.EqualError(t, err, "[query/get_users] Error retrieving users from database: db is down")
+	assert.ErrorIs(t, err, dbErr)
 	assert.Nil(t, out)
 }

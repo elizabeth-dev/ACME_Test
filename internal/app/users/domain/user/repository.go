@@ -2,8 +2,17 @@ package user
 
 import (
 	"context"
+	"fmt"
 	"github.com/elizabeth-dev/FACEIT_Test/internal/pkg/utils/query_utils"
 )
+
+type NotFoundError struct {
+	Id string
+}
+
+func (e *NotFoundError) Error() string {
+	return fmt.Sprintf("User with id %s not found", e.Id)
+}
 
 /* UserRepository
 Disclaimer: this should be called just "Repository". But doing so would mess up the mock generation with Mockery.

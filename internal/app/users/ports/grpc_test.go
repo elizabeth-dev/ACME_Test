@@ -5,6 +5,7 @@ import (
 	"github.com/elizabeth-dev/FACEIT_Test/internal/app/users/app"
 	"github.com/elizabeth-dev/FACEIT_Test/internal/app/users/app/command"
 	"github.com/elizabeth-dev/FACEIT_Test/internal/app/users/app/query"
+	errors2 "github.com/elizabeth-dev/FACEIT_Test/internal/pkg/errors"
 	"github.com/elizabeth-dev/FACEIT_Test/internal/pkg/utils/query_utils"
 	"github.com/elizabeth-dev/FACEIT_Test/internal/pkg/utils/query_utils/operators"
 	"github.com/elizabeth-dev/FACEIT_Test/mocks"
@@ -28,9 +29,11 @@ func TestGrpc(t *testing.T) {
 			"initialize gRPC server": testNewGrpcServer,
 		},
 		"create user": {
-			"call create user":                   testCreateUser,
-			"call create user with create error": testCreateUserWithCreateError,
-			"call create user with get error":    testCreateUserWithGetError,
+			"call create user":                                    testCreateUser,
+			"call create user with invalid field error":           testCreateUserWithInvalidFieldError,
+			"call create user with multiple invalid fields error": testCreateUserWithMultipleInvalidFieldsError,
+			"call create user with create error":                  testCreateUserWithCreateError,
+			"call create user with get error":                     testCreateUserWithGetError,
 		},
 		"get users": {
 			"call get users":                    testGetUsers,
@@ -39,10 +42,12 @@ func TestGrpc(t *testing.T) {
 			"call get users with send error":    testGetUsersWithSendError,
 		},
 		"update user": {
-			"call update user":                   testUpdateUser,
-			"call update user with no id":        testUpdateUserWithoutId,
-			"call update user with update error": testUpdateUserWithUpdateError,
-			"call update user with get error":    testUpdateUserWithGetError,
+			"call update user":                                   testUpdateUser,
+			"call update user with no id":                        testUpdateUserWithoutId,
+			"call update user with invalid field error":          testUpdateUserWithInvalidFieldError,
+			"call update user with multiple invalidFields error": testUpdateUserWithMultipleInvalidFieldsError,
+			"call update user with update error":                 testUpdateUserWithUpdateError,
+			"call update user with get error":                    testUpdateUserWithGetError,
 		},
 		"remove user": {
 			"call remove user":                   testRemoveUser,
@@ -148,6 +153,102 @@ func testCreateUser(t *testing.T) {
 	)
 }
 
+func testCreateUserWithInvalidFieldError(t *testing.T) {
+	mockCreateUser := new(handler_mocks.ICreateUserHandler)
+	mockGetUserById := new(handler_mocks.IGetUserByIdHandler)
+	application := app.Application{
+		Commands: app.Commands{CreateUser: mockCreateUser},
+		Queries:  app.Queries{GetUserById: mockGetUserById},
+	}
+	server := GrpcServer{app: application}
+
+	ctx := context.Background()
+	request := apiV1.CreateUserRequest{
+		FirstName: "John",
+		LastName:  "Doe",
+		Nickname:  "john-123",
+		Password:  "password",
+		Email:     "me@john.com",
+		Country:   "US",
+	}
+
+	createUserCmd := command.CreateUser{
+		FirstName: "John",
+		LastName:  "Doe",
+		Nickname:  "john-123",
+		Password:  "password",
+		Email:     "me@john.com",
+		Country:   "US",
+	}
+
+	invalidErr := errors2.InvalidField{
+		Domain: "",
+		Field:  "",
+		Value:  nil,
+	}
+	mockCreateUser.On("Handle", ctx, createUserCmd).Return("", &invalidErr)
+
+	out, err := server.CreateUser(ctx, &request)
+
+	mockCreateUser.AssertNumberOfCalls(t, "Handle", 1)
+	mockGetUserById.AssertNumberOfCalls(t, "Handle", 0)
+	mockCreateUser.AssertExpectations(t)
+
+	assert.ErrorIs(t, err, status.Error(codes.InvalidArgument, invalidErr.Error()))
+	assert.Nil(t, out)
+}
+
+func testCreateUserWithMultipleInvalidFieldsError(t *testing.T) {
+	mockCreateUser := new(handler_mocks.ICreateUserHandler)
+	mockGetUserById := new(handler_mocks.IGetUserByIdHandler)
+	application := app.Application{
+		Commands: app.Commands{CreateUser: mockCreateUser},
+		Queries:  app.Queries{GetUserById: mockGetUserById},
+	}
+	server := GrpcServer{app: application}
+
+	ctx := context.Background()
+	request := apiV1.CreateUserRequest{
+		FirstName: "John",
+		LastName:  "Doe",
+		Nickname:  "john-123",
+		Password:  "password",
+		Email:     "me@john.com",
+		Country:   "US",
+	}
+
+	createUserCmd := command.CreateUser{
+		FirstName: "John",
+		LastName:  "Doe",
+		Nickname:  "john-123",
+		Password:  "password",
+		Email:     "me@john.com",
+		Country:   "US",
+	}
+
+	invalidErr := errors2.MultipleInvalidFields{
+		Errors: []error{
+			&errors2.InvalidField{
+				Domain: "",
+				Field:  "",
+				Value:  nil,
+			},
+		},
+	}
+	mockCreateUser.On("Handle", ctx, createUserCmd).Return(
+		"", &invalidErr,
+	)
+
+	out, err := server.CreateUser(ctx, &request)
+
+	mockCreateUser.AssertNumberOfCalls(t, "Handle", 1)
+	mockGetUserById.AssertNumberOfCalls(t, "Handle", 0)
+	mockCreateUser.AssertExpectations(t)
+
+	assert.ErrorIs(t, err, status.Error(codes.InvalidArgument, invalidErr.Error()))
+	assert.Nil(t, out)
+}
+
 func testCreateUserWithCreateError(t *testing.T) {
 	mockCreateUser := new(handler_mocks.ICreateUserHandler)
 	mockGetUserById := new(handler_mocks.IGetUserByIdHandler)
@@ -184,7 +285,7 @@ func testCreateUserWithCreateError(t *testing.T) {
 	mockGetUserById.AssertNumberOfCalls(t, "Handle", 0)
 	mockCreateUser.AssertExpectations(t)
 
-	assert.ErrorIs(t, err, status.Error(codes.Internal, "unknown error"))
+	assert.ErrorIs(t, err, status.Error(codes.Internal, "Unknown error while creating user"))
 	assert.Nil(t, out)
 }
 
@@ -227,7 +328,7 @@ func testCreateUserWithGetError(t *testing.T) {
 	mockCreateUser.AssertExpectations(t)
 	mockGetUserById.AssertExpectations(t)
 
-	assert.ErrorIs(t, err, status.Error(codes.Internal, "unknown error"))
+	assert.ErrorIs(t, err, status.Error(codes.Unavailable, "The user was created but couldn't be retrieved"))
 	assert.Nil(t, out)
 }
 
@@ -443,7 +544,7 @@ func testGetUsersWithGetError(t *testing.T) {
 	mockGetUsersHandler.AssertExpectations(t)
 	mockGetUsersSrv.AssertExpectations(t)
 
-	assert.ErrorIs(t, err, status.Error(codes.Internal, "unknown error"))
+	assert.ErrorIs(t, err, status.Error(codes.Internal, "Error retrieving users"))
 }
 
 func testGetUsersWithSendError(t *testing.T) {
@@ -532,7 +633,7 @@ func testGetUsersWithSendError(t *testing.T) {
 	mockGetUsersHandler.AssertExpectations(t)
 	mockGetUsersSrv.AssertExpectations(t)
 
-	assert.ErrorIs(t, err, status.Error(codes.Internal, "unknown error"))
+	assert.ErrorIs(t, err, status.Error(codes.Internal, "Error sending users"))
 }
 
 func testUpdateUser(t *testing.T) {
@@ -643,7 +744,121 @@ func testUpdateUserWithoutId(t *testing.T) {
 	mockUpdateUser.AssertNumberOfCalls(t, "Handle", 0)
 	mockGetUserById.AssertNumberOfCalls(t, "Handle", 0)
 
-	assert.ErrorIs(t, err, status.Error(codes.InvalidArgument, "[UpdateUser] id is required"))
+	assert.ErrorIs(t, err, status.Error(codes.InvalidArgument, "Id is required"))
+	assert.Nil(t, out)
+}
+
+func testUpdateUserWithInvalidFieldError(t *testing.T) {
+	mockUpdateUser := new(handler_mocks.IUpdateUserHandler)
+	mockGetUserById := new(handler_mocks.IGetUserByIdHandler)
+	application := app.Application{
+		Commands: app.Commands{UpdateUser: mockUpdateUser},
+		Queries:  app.Queries{GetUserById: mockGetUserById},
+	}
+	server := GrpcServer{app: application}
+
+	id := "1234"
+	ctx := context.Background()
+	firstName := "updated"
+	lastName := "updated"
+	nickname := "updated"
+	password := "updated"
+	email := "updated"
+	country := "updated"
+	request := apiV1.UpdateUserRequest{
+		Id:        id,
+		FirstName: &firstName,
+		LastName:  &lastName,
+		Nickname:  &nickname,
+		Password:  &password,
+		Email:     &email,
+		Country:   &country,
+	}
+
+	updateUserCmd := command.UpdateUser{
+		Id:        id,
+		FirstName: &firstName,
+		LastName:  &lastName,
+		Nickname:  &nickname,
+		Password:  &password,
+		Email:     &email,
+		Country:   &country,
+	}
+
+	invalidErr := errors2.InvalidField{
+		Domain: "",
+		Field:  "",
+		Value:  nil,
+	}
+	mockUpdateUser.On("Handle", ctx, updateUserCmd).Return(&invalidErr)
+
+	out, err := server.UpdateUser(ctx, &request)
+
+	mockUpdateUser.AssertNumberOfCalls(t, "Handle", 1)
+	mockGetUserById.AssertNumberOfCalls(t, "Handle", 0)
+	mockUpdateUser.AssertExpectations(t)
+
+	assert.ErrorIs(t, err, status.Error(codes.InvalidArgument, invalidErr.Error()))
+	assert.Nil(t, out)
+}
+
+func testUpdateUserWithMultipleInvalidFieldsError(t *testing.T) {
+	mockUpdateUser := new(handler_mocks.IUpdateUserHandler)
+	mockGetUserById := new(handler_mocks.IGetUserByIdHandler)
+	application := app.Application{
+		Commands: app.Commands{UpdateUser: mockUpdateUser},
+		Queries:  app.Queries{GetUserById: mockGetUserById},
+	}
+	server := GrpcServer{app: application}
+
+	id := "1234"
+	ctx := context.Background()
+	firstName := "updated"
+	lastName := "updated"
+	nickname := "updated"
+	password := "updated"
+	email := "updated"
+	country := "updated"
+	request := apiV1.UpdateUserRequest{
+		Id:        id,
+		FirstName: &firstName,
+		LastName:  &lastName,
+		Nickname:  &nickname,
+		Password:  &password,
+		Email:     &email,
+		Country:   &country,
+	}
+
+	updateUserCmd := command.UpdateUser{
+		Id:        id,
+		FirstName: &firstName,
+		LastName:  &lastName,
+		Nickname:  &nickname,
+		Password:  &password,
+		Email:     &email,
+		Country:   &country,
+	}
+
+	invalidErr := errors2.MultipleInvalidFields{
+		Errors: []error{
+			&errors2.InvalidField{
+				Domain: "",
+				Field:  "",
+				Value:  nil,
+			},
+		},
+	}
+	mockUpdateUser.On("Handle", ctx, updateUserCmd).Return(
+		&invalidErr,
+	)
+
+	out, err := server.UpdateUser(ctx, &request)
+
+	mockUpdateUser.AssertNumberOfCalls(t, "Handle", 1)
+	mockGetUserById.AssertNumberOfCalls(t, "Handle", 0)
+	mockUpdateUser.AssertExpectations(t)
+
+	assert.ErrorIs(t, err, status.Error(codes.InvalidArgument, invalidErr.Error()))
 	assert.Nil(t, out)
 }
 
@@ -692,7 +907,7 @@ func testUpdateUserWithUpdateError(t *testing.T) {
 	mockGetUserById.AssertNumberOfCalls(t, "Handle", 0)
 	mockUpdateUser.AssertExpectations(t)
 
-	assert.ErrorIs(t, err, status.Error(codes.Internal, "unknown error"))
+	assert.ErrorIs(t, err, status.Error(codes.Internal, "Unknown error while updating user"))
 	assert.Nil(t, out)
 }
 
@@ -743,7 +958,7 @@ func testUpdateUserWithGetError(t *testing.T) {
 	mockUpdateUser.AssertExpectations(t)
 	mockGetUserById.AssertExpectations(t)
 
-	assert.ErrorIs(t, err, status.Error(codes.Internal, "unknown error"))
+	assert.ErrorIs(t, err, status.Error(codes.Unavailable, "The user was updated but couldn't be retrieved"))
 	assert.Nil(t, out)
 }
 
@@ -788,7 +1003,7 @@ func testRemoveUserWithoutId(t *testing.T) {
 
 	mockRemoveUser.AssertNumberOfCalls(t, "Handle", 0)
 
-	assert.ErrorIs(t, err, status.Error(codes.InvalidArgument, "[RemoveUser] id is required"))
+	assert.ErrorIs(t, err, status.Error(codes.InvalidArgument, "Id is required"))
 	assert.Nil(t, out)
 }
 
@@ -810,6 +1025,6 @@ func testRemoveUserWithRemoveError(t *testing.T) {
 	mockRemoveUser.AssertNumberOfCalls(t, "Handle", 1)
 	mockRemoveUser.AssertExpectations(t)
 
-	assert.ErrorIs(t, err, status.Error(codes.Internal, "unknown error"))
+	assert.ErrorIs(t, err, status.Error(codes.Internal, "Unknown error while removing user"))
 	assert.Nil(t, out)
 }

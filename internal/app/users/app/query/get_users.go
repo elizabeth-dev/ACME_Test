@@ -4,7 +4,6 @@ import (
 	"context"
 	"github.com/elizabeth-dev/FACEIT_Test/internal/app/users/domain/user"
 	"github.com/elizabeth-dev/FACEIT_Test/internal/pkg/utils/query_utils"
-	"github.com/pkg/errors"
 )
 
 /*
@@ -41,7 +40,7 @@ func (h *GetUsersHandler) Handle(ctx context.Context, query GetUsers) ([]*User, 
 	usersResult, err := h.userRepo.GetUsers(ctx, query.Filters, query.Sort, query.Pagination)
 
 	if err != nil {
-		return nil, errors.Wrap(err, "[query/get_users] Error retrieving users from database")
+		return nil, err
 	}
 
 	var users []*User

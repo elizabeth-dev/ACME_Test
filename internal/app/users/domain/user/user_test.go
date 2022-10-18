@@ -1,9 +1,11 @@
 package user
 
 import (
+	pkgErrors "github.com/elizabeth-dev/FACEIT_Test/internal/pkg/errors"
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
+
 	"testing"
 	"time"
 )
@@ -124,37 +126,37 @@ func testCreateUserWithFieldsEmpty(t *testing.T) {
 
 	got, err := CreateUser("", firstName, lastName, nickname, password, email, country)
 
-	assert.EqualError(t, err, "[User] Empty id")
+	assert.Equal(t, &pkgErrors.InvalidField{Domain: "User", Field: "id", Value: ""}, err)
 	assert.Nil(t, got)
 
 	got, err = CreateUser(id, "", lastName, nickname, password, email, country)
 
-	assert.EqualError(t, err, "[User] Empty first name")
+	assert.Equal(t, &pkgErrors.InvalidField{Domain: "User", Field: "first_name", Value: ""}, err)
 	assert.Nil(t, got)
 
 	got, err = CreateUser(id, firstName, "", nickname, password, email, country)
 
-	assert.EqualError(t, err, "[User] Empty last name")
+	assert.Equal(t, &pkgErrors.InvalidField{Domain: "User", Field: "last_name", Value: ""}, err)
 	assert.Nil(t, got)
 
 	got, err = CreateUser(id, firstName, lastName, "", password, email, country)
 
-	assert.EqualError(t, err, "[User] Empty nickname")
+	assert.Equal(t, &pkgErrors.InvalidField{Domain: "User", Field: "nickname", Value: ""}, err)
 	assert.Nil(t, got)
 
 	got, err = CreateUser(id, firstName, lastName, nickname, "", email, country)
 
-	assert.EqualError(t, err, "[User] Empty password")
+	assert.Equal(t, &pkgErrors.InvalidField{Domain: "User", Field: "password", Value: ""}, err)
 	assert.Nil(t, got)
 
 	got, err = CreateUser(id, firstName, lastName, nickname, password, "", country)
 
-	assert.EqualError(t, err, "[User] Empty email")
+	assert.Equal(t, &pkgErrors.InvalidField{Domain: "User", Field: "email", Value: ""}, err)
 	assert.Nil(t, got)
 
 	got, err = CreateUser(id, firstName, lastName, nickname, password, email, "")
 
-	assert.EqualError(t, err, "[User] Empty country")
+	assert.Equal(t, &pkgErrors.InvalidField{Domain: "User", Field: "country", Value: ""}, err)
 	assert.Nil(t, got)
 }
 
@@ -173,7 +175,7 @@ func testCreateUserWithSeveralFieldsEmpty(t *testing.T) {
 
 	got, err := CreateUser("", "", lastName, nickname, password, email, country)
 
-	assert.EqualError(t, err, "[User] Multiple errors")
+	assert.IsType(t, &pkgErrors.MultipleInvalidFields{}, err)
 	assert.Nil(t, got)
 }
 
@@ -189,11 +191,17 @@ func testCreateUserWithHashFail(t *testing.T) {
 	now := time.Now()
 	setNow(now)
 
-	setHash(nil, errors.New("hash fail"))
+	hashErr := errors.New("hash fail")
+	setHash(nil, hashErr)
 
 	got, err := CreateUser(id, firstName, lastName, nickname, password, email, country)
 
-	assert.EqualError(t, err, "[User] Error hashing password: hash fail")
+	assert.Equal(
+		t, &pkgErrors.Unknown{
+			Tag:   domain,
+			Cause: hashErr,
+		}, err,
+	)
 	assert.Nil(t, got)
 }
 
@@ -243,27 +251,27 @@ func testUpdateUserWithEmptyFields(t *testing.T) {
 	setHash(hashedPassword, nil)
 
 	err := user.Update(&empty, &lastName, &nickname, &password, &email, &country)
-	assert.EqualError(t, err, "[User] Empty first name")
+	assert.Equal(t, &pkgErrors.InvalidField{Domain: "User", Field: "first_name", Value: empty}, err)
 	assert.Equal(t, User1, user)
 
 	err = user.Update(&firstName, &empty, &nickname, &password, &email, &country)
-	assert.EqualError(t, err, "[User] Empty last name")
+	assert.Equal(t, &pkgErrors.InvalidField{Domain: "User", Field: "last_name", Value: empty}, err)
 	assert.Equal(t, User1, user)
 
 	err = user.Update(&firstName, &lastName, &empty, &password, &email, &country)
-	assert.EqualError(t, err, "[User] Empty nickname")
+	assert.Equal(t, &pkgErrors.InvalidField{Domain: "User", Field: "nickname", Value: empty}, err)
 	assert.Equal(t, User1, user)
 
 	err = user.Update(&firstName, &lastName, &nickname, &empty, &email, &country)
-	assert.EqualError(t, err, "[User] Empty password")
+	assert.Equal(t, &pkgErrors.InvalidField{Domain: "User", Field: "password", Value: empty}, err)
 	assert.Equal(t, User1, user)
 
 	err = user.Update(&firstName, &lastName, &nickname, &password, &empty, &country)
-	assert.EqualError(t, err, "[User] Empty email")
+	assert.Equal(t, &pkgErrors.InvalidField{Domain: "User", Field: "email", Value: empty}, err)
 	assert.Equal(t, User1, user)
 
 	err = user.Update(&firstName, &lastName, &nickname, &password, &email, &empty)
-	assert.EqualError(t, err, "[User] Empty country")
+	assert.Equal(t, &pkgErrors.InvalidField{Domain: "User", Field: "country", Value: empty}, err)
 	assert.Equal(t, User1, user)
 }
 
@@ -281,7 +289,7 @@ func testUpdateUserWithSeveralEmptyFields(t *testing.T) {
 	setHash(hashedPassword, nil)
 
 	err := user.Update(&empty, &empty, &nickname, &password, &email, &country)
-	assert.EqualError(t, err, "[User] Multiple errors")
+	assert.IsType(t, &pkgErrors.MultipleInvalidFields{}, err)
 	assert.Equal(t, User1, user)
 }
 
@@ -295,11 +303,17 @@ func testUpdateUserWithHashError(t *testing.T) {
 	email := "updated"
 	country := "updated"
 
-	setHash(nil, errors.New("hash fail"))
+	hashErr := errors.New("hash fail")
+	setHash(nil, hashErr)
 
 	err := user.Update(&firstName, &lastName, &nickname, &password, &email, &country)
 
-	assert.EqualError(t, err, "[User] Error hashing password: hash fail")
+	assert.Equal(
+		t, &pkgErrors.Unknown{
+			Tag:   domain,
+			Cause: hashErr,
+		}, err,
+	)
 }
 
 func testUnmarshalUser(t *testing.T) {

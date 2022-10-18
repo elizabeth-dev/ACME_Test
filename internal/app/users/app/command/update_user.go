@@ -3,7 +3,6 @@ package command
 import (
 	"context"
 	"github.com/elizabeth-dev/FACEIT_Test/internal/app/users/domain/user"
-	"github.com/pkg/errors"
 )
 
 /*
@@ -38,7 +37,7 @@ func NewUpdateUserHandler(userRepo user.UserRepository) *UpdateUserHandler {
 func (h *UpdateUserHandler) Handle(ctx context.Context, cmd UpdateUser) error {
 	userToUpdate, err := h.userRepo.GetUserById(ctx, cmd.Id)
 	if err != nil {
-		return errors.Wrap(err, "[command/update_user] Error getting user "+cmd.Id+" from database")
+		return err
 	}
 
 	if err := userToUpdate.Update(
@@ -49,11 +48,11 @@ func (h *UpdateUserHandler) Handle(ctx context.Context, cmd UpdateUser) error {
 		cmd.Email,
 		cmd.Country,
 	); err != nil {
-		return errors.Wrap(err, "[command/update_user] Error updating user "+cmd.Id)
+		return err
 	}
 
 	if err := h.userRepo.UpdateUser(ctx, userToUpdate); err != nil {
-		return errors.Wrap(err, "[command/update_user] Error updating user "+cmd.Id+" in database")
+		return err
 	}
 
 	return nil

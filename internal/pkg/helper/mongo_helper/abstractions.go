@@ -15,8 +15,8 @@ type Collection interface {
 	Find(context.Context, interface{}, ...*options.FindOptions) (cur Cursor, err error)
 	FindOne(context.Context, interface{}) SingleResult
 	InsertOne(context.Context, interface{}) (interface{}, error)
-	UpdateOne(context.Context, interface{}, interface{}, ...*options.UpdateOptions) (interface{}, error)
-	DeleteOne(context.Context, interface{}) (int64, error)
+	UpdateOne(context.Context, interface{}, interface{}, ...*options.UpdateOptions) (*mongo.UpdateResult, error)
+	DeleteOne(context.Context, interface{}) (*mongo.DeleteResult, error)
 }
 
 type SingleResult interface {
@@ -80,9 +80,9 @@ func (mc *MongoCollection) InsertOne(ctx context.Context, document interface{}) 
 	return id.InsertedID, err
 }
 
-func (mc *MongoCollection) DeleteOne(ctx context.Context, filter interface{}) (int64, error) {
-	count, err := mc.col.DeleteOne(ctx, filter)
-	return count.DeletedCount, err
+func (mc *MongoCollection) DeleteOne(ctx context.Context, filter interface{}) (*mongo.DeleteResult, error) {
+	res, err := mc.col.DeleteOne(ctx, filter)
+	return res, err
 }
 
 func (mc *MongoCollection) UpdateOne(
@@ -91,7 +91,7 @@ func (mc *MongoCollection) UpdateOne(
 	update interface{},
 	opts ...*options.UpdateOptions,
 ) (
-	interface{}, error,
+	*mongo.UpdateResult, error,
 ) {
 	res, err := mc.col.UpdateOne(ctx, filter, update, opts...)
 	return res, err

@@ -3,6 +3,7 @@ package command
 import (
 	"context"
 	"github.com/elizabeth-dev/FACEIT_Test/internal/app/users/domain/user"
+	pkgErrors "github.com/elizabeth-dev/FACEIT_Test/internal/pkg/errors"
 	"github.com/elizabeth-dev/FACEIT_Test/mocks"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
@@ -137,7 +138,7 @@ func testHandleUpdateUserWithUserError(t *testing.T) {
 	mockRepo.AssertNumberOfCalls(t, "UpdateUser", 0)
 	mockRepo.AssertExpectations(t)
 
-	assert.ErrorContains(t, err, "[command/update_user] Error updating user 123: ")
+	assert.IsType(t, &pkgErrors.MultipleInvalidFields{}, err)
 
 }
 
@@ -168,7 +169,8 @@ func testHandleUpdateUserWithRepoErrorOnGetUserById(t *testing.T) {
 	updatedUser := previousUser
 	_ = updatedUser.Update(&firstName, &lastName, &nickname, &password, &email, &country)
 
-	mockRepo.On("GetUserById", ctx, id).Return(nil, errors.New("db is down"))
+	dbErr := errors.New("db is down")
+	mockRepo.On("GetUserById", ctx, id).Return(nil, dbErr)
 
 	err := handler.Handle(ctx, updateCommand)
 
@@ -176,7 +178,7 @@ func testHandleUpdateUserWithRepoErrorOnGetUserById(t *testing.T) {
 	mockRepo.AssertNumberOfCalls(t, "UpdateUser", 0)
 	mockRepo.AssertExpectations(t)
 
-	assert.EqualError(t, err, "[command/update_user] Error getting user 123 from database: db is down")
+	assert.ErrorIs(t, err, dbErr)
 }
 
 func testHandleUpdateUserWithRepoErrorOnUpdate(t *testing.T) {
@@ -206,6 +208,7 @@ func testHandleUpdateUserWithRepoErrorOnUpdate(t *testing.T) {
 	updatedUser := previousUser
 	_ = updatedUser.Update(&firstName, &lastName, &nickname, &password, &email, &country)
 
+	dbErr := errors.New("db is down")
 	mockRepo.On("GetUserById", ctx, id).Return(&previousUser, nil)
 	mockRepo.On(
 		"UpdateUser", ctx, mock.MatchedBy(
@@ -222,7 +225,7 @@ func testHandleUpdateUserWithRepoErrorOnUpdate(t *testing.T) {
 				return false
 			},
 		),
-	).Return(errors.New("db is down"))
+	).Return(dbErr)
 
 	err := handler.Handle(ctx, updateCommand)
 
@@ -230,5 +233,5 @@ func testHandleUpdateUserWithRepoErrorOnUpdate(t *testing.T) {
 	mockRepo.AssertNumberOfCalls(t, "UpdateUser", 1)
 	mockRepo.AssertExpectations(t)
 
-	assert.EqualError(t, err, "[command/update_user] Error updating user 123 in database: db is down")
+	assert.ErrorIs(t, err, dbErr)
 }

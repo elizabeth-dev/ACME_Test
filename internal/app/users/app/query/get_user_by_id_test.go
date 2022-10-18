@@ -85,13 +85,14 @@ func testHandleGetUserByIdWithRepoError(t *testing.T) {
 	ctx := context.Background()
 	id := "1234"
 
-	mockRepo.On("GetUserById", ctx, id).Return(nil, errors.New("db is down"))
+	dbErr := errors.New("db is down")
+	mockRepo.On("GetUserById", ctx, id).Return(nil, dbErr)
 
 	got, err := handler.Handle(ctx, id)
 
 	mockRepo.AssertExpectations(t)
 	mockRepo.AssertNumberOfCalls(t, "GetUserById", 1)
 
-	assert.EqualError(t, err, "[query/get_user_by_id] Error retrieving user from database: db is down")
+	assert.ErrorIs(t, err, dbErr)
 	assert.Nil(t, got)
 }
