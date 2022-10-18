@@ -3,6 +3,7 @@ package query
 import (
 	"context"
 	"github.com/elizabeth-dev/FACEIT_Test/internal/app/users/domain/user"
+	"github.com/sirupsen/logrus"
 )
 
 /*
@@ -17,6 +18,8 @@ type GetUserByIdHandler struct {
 	userRepo user.UserRepository
 }
 
+const getUserByIdTag = "query/get_user_by_id"
+
 func NewGetUserByIdHandler(userRepo user.UserRepository) *GetUserByIdHandler {
 	if userRepo == nil {
 		panic("[query/get_user_by_id] nil userRepo")
@@ -26,9 +29,22 @@ func NewGetUserByIdHandler(userRepo user.UserRepository) *GetUserByIdHandler {
 }
 
 func (h *GetUserByIdHandler) Handle(ctx context.Context, userId string) (*User, error) {
+	logrus.WithFields(
+		logrus.Fields{
+			"tag":    getUserByIdTag,
+			"userId": userId,
+		},
+	).Debug("Getting user by id")
 	userResult, err := h.userRepo.GetUserById(ctx, userId)
 
 	if err != nil {
+		logrus.WithFields(
+			logrus.Fields{
+				"tag":    getUserByIdTag,
+				"userId": userId,
+			},
+		).WithError(err).Error("Error getting user by id")
+
 		return nil, err
 	}
 

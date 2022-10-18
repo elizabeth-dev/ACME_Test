@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/elizabeth-dev/FACEIT_Test/internal/app/users/domain/user"
 	"github.com/elizabeth-dev/FACEIT_Test/internal/pkg/utils/query_utils"
+	"github.com/sirupsen/logrus"
 )
 
 /*
@@ -28,6 +29,8 @@ type GetUsersHandler struct {
 	userRepo user.UserRepository
 }
 
+const getUsersTag = "query/get_users"
+
 func NewGetUsersHandler(userRepo user.UserRepository) *GetUsersHandler {
 	if userRepo == nil {
 		panic("[query/get_users] nil userRepo")
@@ -37,9 +40,23 @@ func NewGetUsersHandler(userRepo user.UserRepository) *GetUsersHandler {
 }
 
 func (h *GetUsersHandler) Handle(ctx context.Context, query GetUsers) ([]*User, error) {
+	logrus.WithFields(
+		logrus.Fields{
+			"tag":   getUsersTag,
+			"query": query,
+		},
+	).Debug("Getting users")
+
 	usersResult, err := h.userRepo.GetUsers(ctx, query.Filters, query.Sort, query.Pagination)
 
 	if err != nil {
+		logrus.WithFields(
+			logrus.Fields{
+				"tag":   getUsersTag,
+				"query": query,
+			},
+		).WithError(err).Error("Error getting users")
+
 		return nil, err
 	}
 

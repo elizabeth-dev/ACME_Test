@@ -57,7 +57,7 @@ func testRemoveInvalidUser(t *testing.T, client apiV1.UserServiceClient) {
 		},
 	)
 
-	assert.ErrorIs(t, err, status.Error(codes.InvalidArgument, "[RemoveUser] id is required"))
+	assert.ErrorIs(t, err, status.Error(codes.InvalidArgument, "Id is required"))
 	assert.Nil(t, out)
 }
 
@@ -70,11 +70,8 @@ func testRemoveNonexistentUser(t *testing.T, client apiV1.UserServiceClient) {
 	)
 
 	assert.ErrorIs(
-		t,
-		err,
-		status.Error(
-			codes.Internal,
-			"[command/remove_user] Error retrieving user "+id+" from database: [UserRepository] User not found",
+		t, err, status.Error(
+			codes.Internal, "Unknown error while removing user",
 		),
 	)
 	assert.Nil(t, out)

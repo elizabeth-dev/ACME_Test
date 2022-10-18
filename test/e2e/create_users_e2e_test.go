@@ -86,9 +86,7 @@ func testCreateInvalidUser0(t *testing.T, client apiV1.UserServiceClient, user U
 	)
 
 	assert.ErrorIs(
-		t,
-		err,
-		status.Error(codes.Internal, "[command/create_user] Error generating new user: [User] Empty last name"),
+		t, err, status.Error(codes.InvalidArgument, "[User] Invalid field last_name with value "+user.LastName),
 	)
 	assert.Nil(t, out)
 }
@@ -108,7 +106,10 @@ func testCreateInvalidUser1(t *testing.T, client apiV1.UserServiceClient, user U
 	assert.ErrorIs(
 		t,
 		err,
-		status.Error(codes.Internal, "[command/create_user] Error generating new user: [User] Multiple errors"),
+		status.Error(
+			codes.InvalidArgument,
+			"Multiple errors: [[User] Invalid field last_name with value "+user.LastName+" [User] Invalid field nickname with value "+user.Nickname+"]",
+		),
 	)
 	assert.Nil(t, out)
 }

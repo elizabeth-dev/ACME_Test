@@ -84,7 +84,7 @@ func testUpdateInvalidUser(t *testing.T, client apiV1.UserServiceClient) {
 	assert.ErrorIs(
 		t,
 		err,
-		status.Error(codes.Internal, "[command/update_user] Error updating user "+id+": [User] Empty password"),
+		status.Error(codes.InvalidArgument, "[User] Invalid field password with value "+InvalidUpdatedUser0.Password),
 	)
 	assert.Nil(t, out)
 }
@@ -108,7 +108,10 @@ func testUpdateUserWithSeveralErrors(t *testing.T, client apiV1.UserServiceClien
 	assert.ErrorIs(
 		t,
 		err,
-		status.Error(codes.Internal, "[command/update_user] Error updating user "+id+": [User] Multiple errors"),
+		status.Error(
+			codes.InvalidArgument,
+			"Multiple errors: [[User] Invalid field nickname with value "+InvalidUpdatedUser1.Nickname+" [User] Invalid field password with value "+InvalidUpdatedUser1.Password+"]",
+		),
 	)
 	assert.Nil(t, out)
 }
@@ -132,7 +135,7 @@ func testUpdateNonexistentUser(t *testing.T, client apiV1.UserServiceClient) {
 		err,
 		status.Error(
 			codes.Internal,
-			"[command/update_user] Error getting user "+id+" from database: [UserRepository] User not found",
+			"Unknown error while updating user",
 		),
 	)
 	assert.Nil(t, out)

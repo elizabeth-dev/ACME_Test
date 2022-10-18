@@ -9,6 +9,7 @@ import (
 	"github.com/elizabeth-dev/FACEIT_Test/internal/pkg/utils/grpc_utils"
 	"github.com/elizabeth-dev/FACEIT_Test/internal/pkg/utils/query_utils"
 	apiV1 "github.com/elizabeth-dev/FACEIT_Test/pkg/api/v1"
+	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -22,6 +23,8 @@ type GrpcServer struct {
 func NewGrpcServer(application app.Application) GrpcServer {
 	return GrpcServer{app: application}
 }
+
+const createUserTag = "CreateUser"
 
 func (g *GrpcServer) CreateUser(ctx context.Context, request *apiV1.CreateUserRequest) (*apiV1.User, error) {
 	cmd := command.CreateUser{
@@ -37,12 +40,33 @@ func (g *GrpcServer) CreateUser(ctx context.Context, request *apiV1.CreateUserRe
 
 	if err != nil {
 		if castErr, ok := err.(*errors.InvalidField); ok {
+			logrus.WithFields(
+				logrus.Fields{
+					"tag": createUserTag,
+					"cmd": cmd,
+				},
+			).WithError(castErr).Error("Invalid field")
+
 			return nil, status.Error(codes.InvalidArgument, castErr.Error())
 		}
 
 		if castErr, ok := err.(*errors.MultipleInvalidFields); ok {
+			logrus.WithFields(
+				logrus.Fields{
+					"tag": createUserTag,
+					"cmd": cmd,
+				},
+			).WithError(castErr).Error("Invalid fields")
+
 			return nil, status.Error(codes.InvalidArgument, castErr.Error())
 		}
+
+		logrus.WithFields(
+			logrus.Fields{
+				"tag": createUserTag,
+				"cmd": cmd,
+			},
+		).WithError(err).Error("Unknown error while creating user")
 
 		return nil, status.Error(codes.Internal, "Unknown error while creating user")
 	}
@@ -50,6 +74,13 @@ func (g *GrpcServer) CreateUser(ctx context.Context, request *apiV1.CreateUserRe
 	newUser, err := g.app.Queries.GetUserById.Handle(ctx, id)
 
 	if err != nil {
+		logrus.WithFields(
+			logrus.Fields{
+				"tag": createUserTag,
+				"id":  id,
+			},
+		).WithError(err).Error("Error retrieving new user")
+
 		return nil, status.Error(codes.Unavailable, "The user was created but couldn't be retrieved")
 	}
 
@@ -65,6 +96,8 @@ func (g *GrpcServer) CreateUser(ctx context.Context, request *apiV1.CreateUserRe
 		UpdatedAt: timestamppb.New(newUser.UpdatedAt),
 	}, nil
 }
+
+const getUsersTag = "GetUsers"
 
 func (g *GrpcServer) GetUsers(request *apiV1.GetUsersRequest, srv apiV1.UserService_GetUsersServer) error {
 	var filters []query_utils.Filter
@@ -89,10 +122,17 @@ func (g *GrpcServer) GetUsers(request *apiV1.GetUsersRequest, srv apiV1.UserServ
 	users, err := g.app.Queries.GetUsers.Handle(srv.Context(), getUsersQuery)
 
 	if err != nil {
+		logrus.WithFields(
+			logrus.Fields{
+				"tag":   getUsersTag,
+				"query": getUsersQuery,
+			},
+		).WithError(err).Error("Error retrieving users")
+
 		return status.Error(codes.Internal, "Error retrieving users")
 	}
 
-	for _, user := range users {
+	for i, user := range users {
 		if err := srv.Send(
 			&apiV1.User{
 				Id:        user.Id,
@@ -106,6 +146,14 @@ func (g *GrpcServer) GetUsers(request *apiV1.GetUsersRequest, srv apiV1.UserServ
 				UpdatedAt: timestamppb.New(user.UpdatedAt),
 			},
 		); err != nil {
+			logrus.WithFields(
+				logrus.Fields{
+					"tag":   getUsersTag,
+					"user":  user,
+					"index": i,
+				},
+			).WithError(err).Errorf("Error sending user")
+
 			return status.Error(codes.Internal, "Error sending users")
 		}
 	}
@@ -113,9 +161,18 @@ func (g *GrpcServer) GetUsers(request *apiV1.GetUsersRequest, srv apiV1.UserServ
 	return nil
 }
 
+const updateUserTag = "UpdateUser"
+
 func (g *GrpcServer) UpdateUser(ctx context.Context, request *apiV1.UpdateUserRequest) (*apiV1.User, error) {
 
 	if request.GetId() == "" {
+		logrus.WithFields(
+			logrus.Fields{
+				"tag":     updateUserTag,
+				"request": request,
+			},
+		).Error("Error updating user: id is required")
+
 		return nil, status.Error(codes.InvalidArgument, "Id is required")
 	}
 
@@ -133,11 +190,32 @@ func (g *GrpcServer) UpdateUser(ctx context.Context, request *apiV1.UpdateUserRe
 
 	if err != nil {
 		if castErr, ok := err.(*errors.InvalidField); ok {
+			logrus.WithFields(
+				logrus.Fields{
+					"tag": updateUserTag,
+					"cmd": cmd,
+				},
+			).WithError(castErr).Error("Invalid field")
+
 			return nil, status.Error(codes.InvalidArgument, castErr.Error())
 		}
 		if castErr, ok := err.(*errors.MultipleInvalidFields); ok {
+			logrus.WithFields(
+				logrus.Fields{
+					"tag": updateUserTag,
+					"cmd": cmd,
+				},
+			).WithError(castErr).Error("Invalid fields")
+
 			return nil, status.Error(codes.InvalidArgument, castErr.Error())
 		}
+
+		logrus.WithFields(
+			logrus.Fields{
+				"tag": updateUserTag,
+				"cmd": cmd,
+			},
+		).WithError(err).Error("Unknown error while updating user")
 
 		return nil, status.Error(codes.Internal, "Unknown error while updating user")
 	}
@@ -145,6 +223,13 @@ func (g *GrpcServer) UpdateUser(ctx context.Context, request *apiV1.UpdateUserRe
 	updatedUser, err := g.app.Queries.GetUserById.Handle(ctx, request.GetId())
 
 	if err != nil {
+		logrus.WithFields(
+			logrus.Fields{
+				"tag": updateUserTag,
+				"id":  request.GetId(),
+			},
+		).WithError(err).Error("Error retrieving updated user")
+
 		return nil, status.Error(codes.Unavailable, "The user was updated but couldn't be retrieved")
 	}
 
@@ -161,14 +246,30 @@ func (g *GrpcServer) UpdateUser(ctx context.Context, request *apiV1.UpdateUserRe
 	}, nil
 }
 
+const removeUserTag = "RemoveUser"
+
 func (g *GrpcServer) RemoveUser(ctx context.Context, request *apiV1.RemoveUserRequest) (*emptypb.Empty, error) {
 	if request.GetId() == "" {
+		logrus.WithFields(
+			logrus.Fields{
+				"tag":     removeUserTag,
+				"request": request,
+			},
+		).Error("Error removing user: id is required")
+
 		return nil, status.Error(codes.InvalidArgument, "Id is required")
 	}
 
 	err := g.app.Commands.RemoveUser.Handle(ctx, request.GetId())
 
 	if err != nil {
+		logrus.WithFields(
+			logrus.Fields{
+				"tag": removeUserTag,
+				"id":  request.GetId(),
+			},
+		).WithError(err).Error("Error removing user")
+
 		return nil, status.Error(codes.Internal, "Unknown error while removing user")
 	}
 

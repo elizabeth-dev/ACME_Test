@@ -22,6 +22,4 @@ COPY --from=builder /grpc_health_probe /bin/grpc_health_probe
 
 USER 10001:10001
 
-HEALTHCHECK --interval=5s --timeout=3s --start-period=5s --retries=3 CMD ["/bin/grpc_health_probe", "-addr=localhost:8080"]
-
 CMD ["/bin/app"]
