@@ -71,7 +71,7 @@ func testRemoveNonexistentUser(t *testing.T, client apiV1.UserServiceClient) {
 
 	assert.ErrorIs(
 		t, err, status.Error(
-			codes.Internal, "Unknown error while removing user",
+			codes.NotFound, "User with id nonexistent not found",
 		),
 	)
 	assert.Nil(t, out)

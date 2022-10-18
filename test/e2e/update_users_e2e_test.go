@@ -134,8 +134,8 @@ func testUpdateNonexistentUser(t *testing.T, client apiV1.UserServiceClient) {
 		t,
 		err,
 		status.Error(
-			codes.Internal,
-			"Unknown error while updating user",
+			codes.NotFound,
+			"User with id nonexistent not found",
 		),
 	)
 	assert.Nil(t, out)

@@ -5,6 +5,7 @@ import (
 	"github.com/elizabeth-dev/FACEIT_Test/internal/app/users/app"
 	"github.com/elizabeth-dev/FACEIT_Test/internal/app/users/app/command"
 	"github.com/elizabeth-dev/FACEIT_Test/internal/app/users/app/query"
+	"github.com/elizabeth-dev/FACEIT_Test/internal/app/users/domain/user"
 	errors2 "github.com/elizabeth-dev/FACEIT_Test/internal/pkg/errors"
 	"github.com/elizabeth-dev/FACEIT_Test/internal/pkg/utils/query_utils"
 	"github.com/elizabeth-dev/FACEIT_Test/internal/pkg/utils/query_utils/operators"
@@ -44,15 +45,17 @@ func TestGrpc(t *testing.T) {
 		"update user": {
 			"call update user":                                   testUpdateUser,
 			"call update user with no id":                        testUpdateUserWithoutId,
+			"call update user with not found error":              testUpdateUserWithNotFoundError,
 			"call update user with invalid field error":          testUpdateUserWithInvalidFieldError,
 			"call update user with multiple invalidFields error": testUpdateUserWithMultipleInvalidFieldsError,
 			"call update user with update error":                 testUpdateUserWithUpdateError,
 			"call update user with get error":                    testUpdateUserWithGetError,
 		},
 		"remove user": {
-			"call remove user":                   testRemoveUser,
-			"call remove user with no id":        testRemoveUserWithoutId,
-			"call remove user with remove error": testRemoveUserWithRemoveError,
+			"call remove user":                      testRemoveUser,
+			"call remove user with no id":           testRemoveUserWithoutId,
+			"call remove user with not found error": testRemoveUserWithNotFoundError,
+			"call remove user with remove error":    testRemoveUserWithRemoveError,
 		},
 	} {
 		testGroup := testGroup
@@ -748,6 +751,56 @@ func testUpdateUserWithoutId(t *testing.T) {
 	assert.Nil(t, out)
 }
 
+func testUpdateUserWithNotFoundError(t *testing.T) {
+	mockUpdateUser := new(handler_mocks.IUpdateUserHandler)
+	mockGetUserById := new(handler_mocks.IGetUserByIdHandler)
+	application := app.Application{
+		Commands: app.Commands{UpdateUser: mockUpdateUser},
+		Queries:  app.Queries{GetUserById: mockGetUserById},
+	}
+	server := GrpcServer{app: application}
+
+	id := "1234"
+	ctx := context.Background()
+	firstName := "updated"
+	lastName := "updated"
+	nickname := "updated"
+	password := "updated"
+	email := "updated"
+	country := "updated"
+	request := apiV1.UpdateUserRequest{
+		Id:        id,
+		FirstName: &firstName,
+		LastName:  &lastName,
+		Nickname:  &nickname,
+		Password:  &password,
+		Email:     &email,
+		Country:   &country,
+	}
+
+	updateUserCmd := command.UpdateUser{
+		Id:        id,
+		FirstName: &firstName,
+		LastName:  &lastName,
+		Nickname:  &nickname,
+		Password:  &password,
+		Email:     &email,
+		Country:   &country,
+	}
+
+	notFoundErr := user.NotFoundError{Id: id}
+	mockUpdateUser.On("Handle", ctx, updateUserCmd).Return(&notFoundErr)
+
+	out, err := server.UpdateUser(ctx, &request)
+
+	mockUpdateUser.AssertNumberOfCalls(t, "Handle", 1)
+	mockGetUserById.AssertNumberOfCalls(t, "Handle", 0)
+	mockUpdateUser.AssertExpectations(t)
+
+	assert.ErrorIs(t, err, status.Error(codes.NotFound, notFoundErr.Error()))
+	assert.Nil(t, out)
+}
+
 func testUpdateUserWithInvalidFieldError(t *testing.T) {
 	mockUpdateUser := new(handler_mocks.IUpdateUserHandler)
 	mockGetUserById := new(handler_mocks.IGetUserByIdHandler)
@@ -1004,6 +1057,29 @@ func testRemoveUserWithoutId(t *testing.T) {
 	mockRemoveUser.AssertNumberOfCalls(t, "Handle", 0)
 
 	assert.ErrorIs(t, err, status.Error(codes.InvalidArgument, "Id is required"))
+	assert.Nil(t, out)
+}
+
+func testRemoveUserWithNotFoundError(t *testing.T) {
+	mockRemoveUser := new(handler_mocks.IRemoveUserHandler)
+	application := app.Application{
+		Commands: app.Commands{RemoveUser: mockRemoveUser},
+	}
+	server := GrpcServer{app: application}
+
+	id := "1234"
+	ctx := context.Background()
+	request := apiV1.RemoveUserRequest{Id: id}
+
+	notFoundErr := user.NotFoundError{Id: id}
+	mockRemoveUser.On("Handle", ctx, id).Return(&notFoundErr)
+
+	out, err := server.RemoveUser(ctx, &request)
+
+	mockRemoveUser.AssertNumberOfCalls(t, "Handle", 1)
+	mockRemoveUser.AssertExpectations(t)
+
+	assert.ErrorIs(t, err, status.Error(codes.NotFound, notFoundErr.Error()))
 	assert.Nil(t, out)
 }
 

@@ -5,6 +5,7 @@ import (
 	"github.com/elizabeth-dev/FACEIT_Test/internal/app/users/app"
 	"github.com/elizabeth-dev/FACEIT_Test/internal/app/users/app/command"
 	"github.com/elizabeth-dev/FACEIT_Test/internal/app/users/app/query"
+	"github.com/elizabeth-dev/FACEIT_Test/internal/app/users/domain/user"
 	"github.com/elizabeth-dev/FACEIT_Test/internal/pkg/errors"
 	"github.com/elizabeth-dev/FACEIT_Test/internal/pkg/utils/grpc_utils"
 	"github.com/elizabeth-dev/FACEIT_Test/internal/pkg/utils/query_utils"
@@ -132,24 +133,24 @@ func (g *GrpcServer) GetUsers(request *apiV1.GetUsersRequest, srv apiV1.UserServ
 		return status.Error(codes.Internal, "Error retrieving users")
 	}
 
-	for i, user := range users {
+	for i, currentUser := range users {
 		if err := srv.Send(
 			&apiV1.User{
-				Id:        user.Id,
-				FirstName: user.FirstName,
-				LastName:  user.LastName,
-				Nickname:  user.Nickname,
-				Password:  user.Password,
-				Email:     user.Email,
-				Country:   user.Country,
-				CreatedAt: timestamppb.New(user.CreatedAt),
-				UpdatedAt: timestamppb.New(user.UpdatedAt),
+				Id:        currentUser.Id,
+				FirstName: currentUser.FirstName,
+				LastName:  currentUser.LastName,
+				Nickname:  currentUser.Nickname,
+				Password:  currentUser.Password,
+				Email:     currentUser.Email,
+				Country:   currentUser.Country,
+				CreatedAt: timestamppb.New(currentUser.CreatedAt),
+				UpdatedAt: timestamppb.New(currentUser.UpdatedAt),
 			},
 		); err != nil {
 			logrus.WithFields(
 				logrus.Fields{
 					"tag":   getUsersTag,
-					"user":  user,
+					"user":  currentUser,
 					"index": i,
 				},
 			).WithError(err).Errorf("Error sending user")
@@ -189,6 +190,16 @@ func (g *GrpcServer) UpdateUser(ctx context.Context, request *apiV1.UpdateUserRe
 	err := g.app.Commands.UpdateUser.Handle(ctx, cmd)
 
 	if err != nil {
+		if castErr, ok := err.(*user.NotFoundError); ok {
+			logrus.WithFields(
+				logrus.Fields{
+					"tag": updateUserTag,
+					"cmd": cmd,
+				},
+			).WithError(castErr).Error("Attempted to update nonexistent user")
+
+			return nil, status.Error(codes.NotFound, castErr.Error())
+		}
 		if castErr, ok := err.(*errors.InvalidField); ok {
 			logrus.WithFields(
 				logrus.Fields{
@@ -263,6 +274,17 @@ func (g *GrpcServer) RemoveUser(ctx context.Context, request *apiV1.RemoveUserRe
 	err := g.app.Commands.RemoveUser.Handle(ctx, request.GetId())
 
 	if err != nil {
+		if castErr, ok := err.(*user.NotFoundError); ok {
+			logrus.WithFields(
+				logrus.Fields{
+					"tag": updateUserTag,
+					"id":  request.GetId(),
+				},
+			).WithError(castErr).Error("Attempted to remove nonexistent user")
+
+			return nil, status.Error(codes.NotFound, castErr.Error())
+		}
+
 		logrus.WithFields(
 			logrus.Fields{
 				"tag": removeUserTag,
