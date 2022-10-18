@@ -245,7 +245,7 @@ func testGetInvalidUser(t *testing.T, client apiV1.UserServiceClient) {
 				{
 					Field:    "nickname",
 					Operator: apiV1.Filter_EQUALS,
-					Value:    &apiV1.Filter_StringValue{StringValue: InvalidUser.Nickname},
+					Value:    &apiV1.Filter_StringValue{StringValue: InvalidUser0.Nickname},
 				},
 			},
 		},

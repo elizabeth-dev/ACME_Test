@@ -29,6 +29,14 @@ func testUpdateUsersE2E(t *testing.T, client apiV1.UserServiceClient) {
 	)
 
 	t.Run(
+		"update user 1 with several errors", func(t *testing.T) {
+			t.Parallel()
+
+			testUpdateUserWithSeveralErrors(t, client)
+		},
+	)
+
+	t.Run(
 		"update nonexistent user", func(t *testing.T) {
 			t.Parallel()
 
@@ -64,6 +72,30 @@ func testUpdateInvalidUser(t *testing.T, client apiV1.UserServiceClient) {
 	out, err := client.UpdateUser(
 		context.Background(), &apiV1.UpdateUserRequest{
 			Id:        id,
+			FirstName: &InvalidUpdatedUser0.FirstName,
+			LastName:  &InvalidUpdatedUser0.LastName,
+			Nickname:  &InvalidUpdatedUser0.Nickname,
+			Password:  &InvalidUpdatedUser0.Password,
+			Email:     &InvalidUpdatedUser0.Email,
+			Country:   &InvalidUpdatedUser0.Country,
+		},
+	)
+
+	assert.ErrorIs(
+		t,
+		err,
+		status.Error(codes.Internal, "[command/update_user] Error updating user "+id+": [User] Empty password"),
+	)
+	assert.Nil(t, out)
+}
+
+func testUpdateUserWithSeveralErrors(t *testing.T, client apiV1.UserServiceClient) {
+	sortedUsers := getSortedUsers(t, client)
+
+	id := sortedUsers[1].Id
+	out, err := client.UpdateUser(
+		context.Background(), &apiV1.UpdateUserRequest{
+			Id:        id,
 			FirstName: &InvalidUpdatedUser1.FirstName,
 			LastName:  &InvalidUpdatedUser1.LastName,
 			Nickname:  &InvalidUpdatedUser1.Nickname,
@@ -76,7 +108,7 @@ func testUpdateInvalidUser(t *testing.T, client apiV1.UserServiceClient) {
 	assert.ErrorIs(
 		t,
 		err,
-		status.Error(codes.Internal, "[command/update_user] Error updating user "+id+": [User] Empty password"),
+		status.Error(codes.Internal, "[command/update_user] Error updating user "+id+": [User] Multiple errors"),
 	)
 	assert.Nil(t, out)
 }

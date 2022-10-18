@@ -36,10 +36,19 @@ var User2 = User{
 	Country:   "US",
 }
 
-var InvalidUser = User{
+var InvalidUser0 = User{
 	FirstName: "User",
 	LastName:  "",
 	Nickname:  "userInvalid",
+	Password:  "passwordInvalid",
+	Email:     "invalid@user.com",
+	Country:   "UK",
+}
+
+var InvalidUser1 = User{
+	FirstName: "User",
+	LastName:  "",
+	Nickname:  "",
 	Password:  "passwordInvalid",
 	Email:     "invalid@user.com",
 	Country:   "UK",
@@ -54,10 +63,19 @@ var UpdatedUser0 = User{
 	Country:   "US",
 }
 
-var InvalidUpdatedUser1 = User{
+var InvalidUpdatedUser0 = User{
 	FirstName: "User",
 	LastName:  "One",
 	Nickname:  "user1",
+	Password:  "",
+	Email:     "one@users.com",
+	Country:   "US",
+}
+
+var InvalidUpdatedUser1 = User{
+	FirstName: "User",
+	LastName:  "One",
+	Nickname:  "",
 	Password:  "",
 	Email:     "one@users.com",
 	Country:   "US",

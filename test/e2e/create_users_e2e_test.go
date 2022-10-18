@@ -31,9 +31,17 @@ func testCreateUsersE2E(t *testing.T, client apiV1.UserServiceClient) {
 		},
 	)
 
+	// Only one empty field
 	t.Run(
-		"create invalid user", func(t *testing.T) {
-			testCreateInvalidUser(t, client, InvalidUser)
+		"create invalid user 1", func(t *testing.T) {
+			testCreateInvalidUser0(t, client, InvalidUser0)
+		},
+	)
+
+	// Multiple empty fields
+	t.Run(
+		"create invalid user 2", func(t *testing.T) {
+			testCreateInvalidUser1(t, client, InvalidUser1)
 		},
 	)
 }
@@ -65,7 +73,7 @@ func testCreateUser(t *testing.T, client apiV1.UserServiceClient, user User) {
 	assert.True(t, after.After(out.CreatedAt.AsTime()))
 }
 
-func testCreateInvalidUser(t *testing.T, client apiV1.UserServiceClient, user User) {
+func testCreateInvalidUser0(t *testing.T, client apiV1.UserServiceClient, user User) {
 	out, err := client.CreateUser(
 		context.Background(), &apiV1.CreateUserRequest{
 			FirstName: user.FirstName,
@@ -81,6 +89,26 @@ func testCreateInvalidUser(t *testing.T, client apiV1.UserServiceClient, user Us
 		t,
 		err,
 		status.Error(codes.Internal, "[command/create_user] Error generating new user: [User] Empty last name"),
+	)
+	assert.Nil(t, out)
+}
+
+func testCreateInvalidUser1(t *testing.T, client apiV1.UserServiceClient, user User) {
+	out, err := client.CreateUser(
+		context.Background(), &apiV1.CreateUserRequest{
+			FirstName: user.FirstName,
+			LastName:  user.LastName,
+			Nickname:  user.Nickname,
+			Password:  user.Password,
+			Email:     user.Email,
+			Country:   user.Country,
+		},
+	)
+
+	assert.ErrorIs(
+		t,
+		err,
+		status.Error(codes.Internal, "[command/create_user] Error generating new user: [User] Multiple errors"),
 	)
 	assert.Nil(t, out)
 }

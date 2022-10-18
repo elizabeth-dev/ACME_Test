@@ -28,14 +28,16 @@ func TestUser(t *testing.T) {
 			"should return the correct values": testGetters,
 		},
 		"create user": {
-			"create simple user":                testCreateUser,
-			"create user with each field empty": testCreateUserWithFieldsEmpty,
-			"create user with hash fail":        testCreateUserWithHashFail,
+			"create simple user":                    testCreateUser,
+			"create user with each field empty":     testCreateUserWithFieldsEmpty,
+			"create user with several fields empty": testCreateUserWithSeveralFieldsEmpty,
+			"create user with hash fail":            testCreateUserWithHashFail,
 		},
 		"update user": {
-			"update user":                       testUpdateUser,
-			"update user with each field empty": testUpdateUserWithEmptyFields,
-			"update user with hash error":       testUpdateUserWithHashError,
+			"update user":                           testUpdateUser,
+			"update user with each field empty":     testUpdateUserWithEmptyFields,
+			"update user with several fields empty": testUpdateUserWithSeveralEmptyFields,
+			"update user with hash error":           testUpdateUserWithHashError,
 		},
 		"unmarshal user": {
 			"unmarshal user": testUnmarshalUser,
@@ -156,6 +158,25 @@ func testCreateUserWithFieldsEmpty(t *testing.T) {
 	assert.Nil(t, got)
 }
 
+func testCreateUserWithSeveralFieldsEmpty(t *testing.T) {
+	lastName := "Doe"
+	nickname := "john-123"
+	password := "password"
+	email := "me@john.com"
+	country := "US"
+
+	now := time.Now()
+	setNow(now)
+
+	hashedPassword := []byte("password")
+	setHash(hashedPassword, nil)
+
+	got, err := CreateUser("", "", lastName, nickname, password, email, country)
+
+	assert.EqualError(t, err, "[User] Multiple errors")
+	assert.Nil(t, got)
+}
+
 func testCreateUserWithHashFail(t *testing.T) {
 	id := uuid.NewString()
 	firstName := "John"
@@ -223,21 +244,45 @@ func testUpdateUserWithEmptyFields(t *testing.T) {
 
 	err := user.Update(&empty, &lastName, &nickname, &password, &email, &country)
 	assert.EqualError(t, err, "[User] Empty first name")
+	assert.Equal(t, User1, user)
 
 	err = user.Update(&firstName, &empty, &nickname, &password, &email, &country)
 	assert.EqualError(t, err, "[User] Empty last name")
+	assert.Equal(t, User1, user)
 
 	err = user.Update(&firstName, &lastName, &empty, &password, &email, &country)
 	assert.EqualError(t, err, "[User] Empty nickname")
+	assert.Equal(t, User1, user)
 
 	err = user.Update(&firstName, &lastName, &nickname, &empty, &email, &country)
 	assert.EqualError(t, err, "[User] Empty password")
+	assert.Equal(t, User1, user)
 
 	err = user.Update(&firstName, &lastName, &nickname, &password, &empty, &country)
 	assert.EqualError(t, err, "[User] Empty email")
+	assert.Equal(t, User1, user)
 
 	err = user.Update(&firstName, &lastName, &nickname, &password, &email, &empty)
 	assert.EqualError(t, err, "[User] Empty country")
+	assert.Equal(t, User1, user)
+}
+
+func testUpdateUserWithSeveralEmptyFields(t *testing.T) {
+	user := User1
+
+	nickname := "updated"
+	password := "updated"
+	email := "updated"
+	country := "updated"
+
+	empty := ""
+
+	hashedPassword := []byte("hashed")
+	setHash(hashedPassword, nil)
+
+	err := user.Update(&empty, &empty, &nickname, &password, &email, &country)
+	assert.EqualError(t, err, "[User] Multiple errors")
+	assert.Equal(t, User1, user)
 }
 
 func testUpdateUserWithHashError(t *testing.T) {

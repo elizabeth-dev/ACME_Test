@@ -67,51 +67,73 @@ func (u *User) UpdatedAt() time.Time {
 	return u.updatedAt
 }
 
-/*
-Update
-
-TODO: fix fields being updated anyway if an error occurs downwards
-*/
 func (u *User) Update(
-	firstName *string,
-	lastName *string,
-	nickname *string,
-	password *string,
-	email *string,
-	country *string,
+	firstName *string, lastName *string, nickname *string, password *string, email *string, country *string,
 ) error {
+	/* Validation */
+	var errorAcc []error
 	if firstName != nil {
 		if *firstName == "" {
-			return errors.New("[User] Empty first name")
+			errorAcc = append(errorAcc, errors.New("[User] Empty first name"))
 		}
+	}
 
+	if lastName != nil {
+		if *lastName == "" {
+			errorAcc = append(errorAcc, errors.New("[User] Empty last name"))
+		}
+	}
+
+	if nickname != nil {
+		if *nickname == "" {
+			errorAcc = append(errorAcc, errors.New("[User] Empty nickname"))
+		}
+	}
+
+	if password != nil {
+		if *password == "" {
+			errorAcc = append(errorAcc, errors.New("[User] Empty password"))
+		}
+	}
+
+	if email != nil {
+		if *email == "" {
+			errorAcc = append(errorAcc, errors.New("[User] Empty email"))
+		}
+	}
+
+	if country != nil {
+		if *country == "" {
+			errorAcc = append(errorAcc, errors.New("[User] Empty country"))
+		}
+	}
+
+	if len(errorAcc) == 1 {
+		return errorAcc[0]
+	}
+
+	if len(errorAcc) > 1 {
+		return errors.New("[User] Multiple errors")
+	}
+
+	/* Update */
+
+	if firstName != nil {
 		u.firstName = *firstName
 		u.updatedAt = nowFunc()
 	}
 
 	if lastName != nil {
-		if *lastName == "" {
-			return errors.New("[User] Empty last name")
-		}
-
 		u.lastName = *lastName
 		u.updatedAt = nowFunc()
 	}
 
 	if nickname != nil {
-		if *nickname == "" {
-			return errors.New("[User] Empty nickname")
-		}
-
 		u.nickname = *nickname
 		u.updatedAt = nowFunc()
 	}
 
 	if password != nil {
-		if *password == "" {
-			return errors.New("[User] Empty password")
-		}
-
 		hashedPassword, err := hashPassword(*password)
 
 		if err != nil {
@@ -123,19 +145,11 @@ func (u *User) Update(
 	}
 
 	if email != nil {
-		if *email == "" {
-			return errors.New("[User] Empty email")
-		}
-
 		u.email = *email
 		u.updatedAt = nowFunc()
 	}
 
 	if country != nil {
-		if *country == "" {
-			return errors.New("[User] Empty country")
-		}
-
 		u.country = *country
 		u.updatedAt = nowFunc()
 	}
@@ -158,38 +172,48 @@ specific properties like createdAt.
 func CreateUser(
 	id string, firstName string, lastName string, nickname string, password string, email string, country string,
 ) (*User, error) {
+	var errorAcc []error
+
 	if id == "" {
-		return nil, errors.New("[User] Empty id")
+		errorAcc = append(errorAcc, errors.New("[User] Empty id"))
 	}
 
 	if firstName == "" {
-		return nil, errors.New("[User] Empty first name")
+		errorAcc = append(errorAcc, errors.New("[User] Empty first name"))
 	}
 
 	if lastName == "" {
-		return nil, errors.New("[User] Empty last name")
+		errorAcc = append(errorAcc, errors.New("[User] Empty last name"))
 	}
 
 	if nickname == "" {
-		return nil, errors.New("[User] Empty nickname")
+		errorAcc = append(errorAcc, errors.New("[User] Empty nickname"))
 	}
 
 	if password == "" {
-		return nil, errors.New("[User] Empty password")
+		errorAcc = append(errorAcc, errors.New("[User] Empty password"))
 	}
 
 	if email == "" {
-		return nil, errors.New("[User] Empty email")
+		errorAcc = append(errorAcc, errors.New("[User] Empty email"))
 	}
 
 	if country == "" {
-		return nil, errors.New("[User] Empty country")
+		errorAcc = append(errorAcc, errors.New("[User] Empty country"))
 	}
 
 	hashedPassword, err := hashPassword(password)
 
 	if err != nil {
-		return nil, errors.Wrap(err, "[User] Error hashing password")
+		errorAcc = append(errorAcc, errors.Wrap(err, "[User] Error hashing password"))
+	}
+
+	if len(errorAcc) == 1 {
+		return nil, errorAcc[0]
+	}
+
+	if len(errorAcc) > 1 {
+		return nil, errors.New("[User] Multiple errors")
 	}
 
 	now := nowFunc()
