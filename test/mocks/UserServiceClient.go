@@ -3,12 +3,12 @@
 package mocks
 
 import (
-	context "context"
+	"context"
 
-	grpc "google.golang.org/grpc"
-	emptypb "google.golang.org/protobuf/types/known/emptypb"
+	"google.golang.org/grpc"
+	"google.golang.org/protobuf/types/known/emptypb"
 
-	mock "github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/mock"
 
 	v1 "github.com/elizabeth-dev/FACEIT_Test/pkg/api/v1"
 )

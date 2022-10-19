@@ -3,7 +3,7 @@ package command
 import (
 	"context"
 	pkgErrors "github.com/elizabeth-dev/FACEIT_Test/internal/pkg/errors"
-	"github.com/elizabeth-dev/FACEIT_Test/mocks"
+	"github.com/elizabeth-dev/FACEIT_Test/test/mocks"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"

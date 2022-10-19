@@ -9,9 +9,9 @@ import (
 	errors2 "github.com/elizabeth-dev/FACEIT_Test/internal/pkg/errors"
 	"github.com/elizabeth-dev/FACEIT_Test/internal/pkg/utils/query_utils"
 	"github.com/elizabeth-dev/FACEIT_Test/internal/pkg/utils/query_utils/operators"
-	"github.com/elizabeth-dev/FACEIT_Test/mocks"
-	"github.com/elizabeth-dev/FACEIT_Test/mocks/handler_mocks"
 	apiV1 "github.com/elizabeth-dev/FACEIT_Test/pkg/api/v1"
+	"github.com/elizabeth-dev/FACEIT_Test/test/mocks"
+	handler_mocks2 "github.com/elizabeth-dev/FACEIT_Test/test/mocks/handler_mocks"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc/codes"
@@ -89,8 +89,8 @@ func testNewGrpcServer(t *testing.T) {
 }
 
 func testCreateUser(t *testing.T) {
-	mockCreateUser := new(handler_mocks.ICreateUserHandler)
-	mockGetUserById := new(handler_mocks.IGetUserByIdHandler)
+	mockCreateUser := new(handler_mocks2.ICreateUserHandler)
+	mockGetUserById := new(handler_mocks2.IGetUserByIdHandler)
 	application := app.Application{
 		Commands: app.Commands{CreateUser: mockCreateUser},
 		Queries:  app.Queries{GetUserById: mockGetUserById},
@@ -157,8 +157,8 @@ func testCreateUser(t *testing.T) {
 }
 
 func testCreateUserWithInvalidFieldError(t *testing.T) {
-	mockCreateUser := new(handler_mocks.ICreateUserHandler)
-	mockGetUserById := new(handler_mocks.IGetUserByIdHandler)
+	mockCreateUser := new(handler_mocks2.ICreateUserHandler)
+	mockGetUserById := new(handler_mocks2.IGetUserByIdHandler)
 	application := app.Application{
 		Commands: app.Commands{CreateUser: mockCreateUser},
 		Queries:  app.Queries{GetUserById: mockGetUserById},
@@ -202,8 +202,8 @@ func testCreateUserWithInvalidFieldError(t *testing.T) {
 }
 
 func testCreateUserWithMultipleInvalidFieldsError(t *testing.T) {
-	mockCreateUser := new(handler_mocks.ICreateUserHandler)
-	mockGetUserById := new(handler_mocks.IGetUserByIdHandler)
+	mockCreateUser := new(handler_mocks2.ICreateUserHandler)
+	mockGetUserById := new(handler_mocks2.IGetUserByIdHandler)
 	application := app.Application{
 		Commands: app.Commands{CreateUser: mockCreateUser},
 		Queries:  app.Queries{GetUserById: mockGetUserById},
@@ -253,8 +253,8 @@ func testCreateUserWithMultipleInvalidFieldsError(t *testing.T) {
 }
 
 func testCreateUserWithCreateError(t *testing.T) {
-	mockCreateUser := new(handler_mocks.ICreateUserHandler)
-	mockGetUserById := new(handler_mocks.IGetUserByIdHandler)
+	mockCreateUser := new(handler_mocks2.ICreateUserHandler)
+	mockGetUserById := new(handler_mocks2.IGetUserByIdHandler)
 	application := app.Application{
 		Commands: app.Commands{CreateUser: mockCreateUser},
 		Queries:  app.Queries{GetUserById: mockGetUserById},
@@ -293,8 +293,8 @@ func testCreateUserWithCreateError(t *testing.T) {
 }
 
 func testCreateUserWithGetError(t *testing.T) {
-	mockCreateUser := new(handler_mocks.ICreateUserHandler)
-	mockGetUserById := new(handler_mocks.IGetUserByIdHandler)
+	mockCreateUser := new(handler_mocks2.ICreateUserHandler)
+	mockGetUserById := new(handler_mocks2.IGetUserByIdHandler)
 	application := app.Application{
 		Commands: app.Commands{CreateUser: mockCreateUser},
 		Queries:  app.Queries{GetUserById: mockGetUserById},
@@ -336,7 +336,7 @@ func testCreateUserWithGetError(t *testing.T) {
 }
 
 func testGetUsers(t *testing.T) {
-	mockGetUsersHandler := new(handler_mocks.IGetUsersHandler)
+	mockGetUsersHandler := new(handler_mocks2.IGetUsersHandler)
 	mockGetUsersSrv := new(mocks.UserService_GetUsersServer)
 	application := app.Application{
 		Queries: app.Queries{GetUsers: mockGetUsersHandler},
@@ -425,7 +425,7 @@ func testGetUsers(t *testing.T) {
 }
 
 func testGetUsersWithNoParams(t *testing.T) {
-	mockGetUsersHandler := new(handler_mocks.IGetUsersHandler)
+	mockGetUsersHandler := new(handler_mocks2.IGetUsersHandler)
 	mockGetUsersSrv := new(mocks.UserService_GetUsersServer)
 	application := app.Application{
 		Queries: app.Queries{GetUsers: mockGetUsersHandler},
@@ -492,7 +492,7 @@ func testGetUsersWithNoParams(t *testing.T) {
 }
 
 func testGetUsersWithGetError(t *testing.T) {
-	mockGetUsersHandler := new(handler_mocks.IGetUsersHandler)
+	mockGetUsersHandler := new(handler_mocks2.IGetUsersHandler)
 	mockGetUsersSrv := new(mocks.UserService_GetUsersServer)
 	application := app.Application{
 		Queries: app.Queries{GetUsers: mockGetUsersHandler},
@@ -551,7 +551,7 @@ func testGetUsersWithGetError(t *testing.T) {
 }
 
 func testGetUsersWithSendError(t *testing.T) {
-	mockGetUsersHandler := new(handler_mocks.IGetUsersHandler)
+	mockGetUsersHandler := new(handler_mocks2.IGetUsersHandler)
 	mockGetUsersSrv := new(mocks.UserService_GetUsersServer)
 	application := app.Application{
 		Queries: app.Queries{GetUsers: mockGetUsersHandler},
@@ -640,8 +640,8 @@ func testGetUsersWithSendError(t *testing.T) {
 }
 
 func testUpdateUser(t *testing.T) {
-	mockUpdateUser := new(handler_mocks.IUpdateUserHandler)
-	mockGetUserById := new(handler_mocks.IGetUserByIdHandler)
+	mockUpdateUser := new(handler_mocks2.IUpdateUserHandler)
+	mockGetUserById := new(handler_mocks2.IGetUserByIdHandler)
 	application := app.Application{
 		Commands: app.Commands{UpdateUser: mockUpdateUser},
 		Queries:  app.Queries{GetUserById: mockGetUserById},
@@ -716,8 +716,8 @@ func testUpdateUser(t *testing.T) {
 }
 
 func testUpdateUserWithoutId(t *testing.T) {
-	mockUpdateUser := new(handler_mocks.IUpdateUserHandler)
-	mockGetUserById := new(handler_mocks.IGetUserByIdHandler)
+	mockUpdateUser := new(handler_mocks2.IUpdateUserHandler)
+	mockGetUserById := new(handler_mocks2.IGetUserByIdHandler)
 	application := app.Application{
 		Commands: app.Commands{UpdateUser: mockUpdateUser},
 		Queries:  app.Queries{GetUserById: mockGetUserById},
@@ -752,8 +752,8 @@ func testUpdateUserWithoutId(t *testing.T) {
 }
 
 func testUpdateUserWithNotFoundError(t *testing.T) {
-	mockUpdateUser := new(handler_mocks.IUpdateUserHandler)
-	mockGetUserById := new(handler_mocks.IGetUserByIdHandler)
+	mockUpdateUser := new(handler_mocks2.IUpdateUserHandler)
+	mockGetUserById := new(handler_mocks2.IGetUserByIdHandler)
 	application := app.Application{
 		Commands: app.Commands{UpdateUser: mockUpdateUser},
 		Queries:  app.Queries{GetUserById: mockGetUserById},
@@ -802,8 +802,8 @@ func testUpdateUserWithNotFoundError(t *testing.T) {
 }
 
 func testUpdateUserWithInvalidFieldError(t *testing.T) {
-	mockUpdateUser := new(handler_mocks.IUpdateUserHandler)
-	mockGetUserById := new(handler_mocks.IGetUserByIdHandler)
+	mockUpdateUser := new(handler_mocks2.IUpdateUserHandler)
+	mockGetUserById := new(handler_mocks2.IGetUserByIdHandler)
 	application := app.Application{
 		Commands: app.Commands{UpdateUser: mockUpdateUser},
 		Queries:  app.Queries{GetUserById: mockGetUserById},
@@ -856,8 +856,8 @@ func testUpdateUserWithInvalidFieldError(t *testing.T) {
 }
 
 func testUpdateUserWithMultipleInvalidFieldsError(t *testing.T) {
-	mockUpdateUser := new(handler_mocks.IUpdateUserHandler)
-	mockGetUserById := new(handler_mocks.IGetUserByIdHandler)
+	mockUpdateUser := new(handler_mocks2.IUpdateUserHandler)
+	mockGetUserById := new(handler_mocks2.IGetUserByIdHandler)
 	application := app.Application{
 		Commands: app.Commands{UpdateUser: mockUpdateUser},
 		Queries:  app.Queries{GetUserById: mockGetUserById},
@@ -916,8 +916,8 @@ func testUpdateUserWithMultipleInvalidFieldsError(t *testing.T) {
 }
 
 func testUpdateUserWithUpdateError(t *testing.T) {
-	mockUpdateUser := new(handler_mocks.IUpdateUserHandler)
-	mockGetUserById := new(handler_mocks.IGetUserByIdHandler)
+	mockUpdateUser := new(handler_mocks2.IUpdateUserHandler)
+	mockGetUserById := new(handler_mocks2.IGetUserByIdHandler)
 	application := app.Application{
 		Commands: app.Commands{UpdateUser: mockUpdateUser},
 		Queries:  app.Queries{GetUserById: mockGetUserById},
@@ -965,8 +965,8 @@ func testUpdateUserWithUpdateError(t *testing.T) {
 }
 
 func testUpdateUserWithGetError(t *testing.T) {
-	mockUpdateUser := new(handler_mocks.IUpdateUserHandler)
-	mockGetUserById := new(handler_mocks.IGetUserByIdHandler)
+	mockUpdateUser := new(handler_mocks2.IUpdateUserHandler)
+	mockGetUserById := new(handler_mocks2.IGetUserByIdHandler)
 	application := app.Application{
 		Commands: app.Commands{UpdateUser: mockUpdateUser},
 		Queries:  app.Queries{GetUserById: mockGetUserById},
@@ -1016,7 +1016,7 @@ func testUpdateUserWithGetError(t *testing.T) {
 }
 
 func testRemoveUser(t *testing.T) {
-	mockRemoveUser := new(handler_mocks.IRemoveUserHandler)
+	mockRemoveUser := new(handler_mocks2.IRemoveUserHandler)
 	application := app.Application{
 		Commands: app.Commands{RemoveUser: mockRemoveUser},
 	}
@@ -1042,7 +1042,7 @@ func testRemoveUser(t *testing.T) {
 }
 
 func testRemoveUserWithoutId(t *testing.T) {
-	mockRemoveUser := new(handler_mocks.IRemoveUserHandler)
+	mockRemoveUser := new(handler_mocks2.IRemoveUserHandler)
 	application := app.Application{
 		Commands: app.Commands{RemoveUser: mockRemoveUser},
 	}
@@ -1061,7 +1061,7 @@ func testRemoveUserWithoutId(t *testing.T) {
 }
 
 func testRemoveUserWithNotFoundError(t *testing.T) {
-	mockRemoveUser := new(handler_mocks.IRemoveUserHandler)
+	mockRemoveUser := new(handler_mocks2.IRemoveUserHandler)
 	application := app.Application{
 		Commands: app.Commands{RemoveUser: mockRemoveUser},
 	}
@@ -1084,7 +1084,7 @@ func testRemoveUserWithNotFoundError(t *testing.T) {
 }
 
 func testRemoveUserWithRemoveError(t *testing.T) {
-	mockRemoveUser := new(handler_mocks.IRemoveUserHandler)
+	mockRemoveUser := new(handler_mocks2.IRemoveUserHandler)
 	application := app.Application{
 		Commands: app.Commands{RemoveUser: mockRemoveUser},
 	}

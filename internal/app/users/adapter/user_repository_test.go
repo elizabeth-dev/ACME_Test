@@ -7,7 +7,7 @@ import (
 	"github.com/elizabeth-dev/FACEIT_Test/internal/pkg/utils/mongo_utils"
 	"github.com/elizabeth-dev/FACEIT_Test/internal/pkg/utils/query_utils"
 	"github.com/elizabeth-dev/FACEIT_Test/internal/pkg/utils/query_utils/operators"
-	"github.com/elizabeth-dev/FACEIT_Test/mocks"
+	mocks2 "github.com/elizabeth-dev/FACEIT_Test/test/mocks"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -88,8 +88,8 @@ func TestUserRepository(t *testing.T) {
 }
 
 func testNewUserRepository(t *testing.T) {
-	mockDb := new(mocks.Database)
-	mockCol := new(mocks.Collection)
+	mockDb := new(mocks2.Database)
+	mockCol := new(mocks2.Collection)
 
 	mockDb.On("Collection", mock.Anything).Return(mockCol)
 
@@ -108,7 +108,7 @@ func testNewUserRepositoryWithNoClient(t *testing.T) {
 }
 
 func testAddUser(t *testing.T) {
-	mockCollection := new(mocks.Collection)
+	mockCollection := new(mocks2.Collection)
 	repo := UserRepository{col: mockCollection}
 
 	ctx := context.Background()
@@ -125,7 +125,7 @@ func testAddUser(t *testing.T) {
 }
 
 func testAddUserWithDbError(t *testing.T) {
-	mockCollection := new(mocks.Collection)
+	mockCollection := new(mocks2.Collection)
 	repo := UserRepository{col: mockCollection}
 
 	ctx := context.Background()
@@ -148,8 +148,8 @@ func testAddUserWithDbError(t *testing.T) {
 }
 
 func testGetUserById(t *testing.T) {
-	mockCollection := new(mocks.Collection)
-	mockSingleResult := new(mocks.SingleResult)
+	mockCollection := new(mocks2.Collection)
+	mockSingleResult := new(mocks2.SingleResult)
 	repo := UserRepository{col: mockCollection}
 
 	ctx := context.Background()
@@ -174,8 +174,8 @@ func testGetUserById(t *testing.T) {
 }
 
 func testGetUserByIdWithDecodeError(t *testing.T) {
-	mockCollection := new(mocks.Collection)
-	mockSingleResult := new(mocks.SingleResult)
+	mockCollection := new(mocks2.Collection)
+	mockSingleResult := new(mocks2.SingleResult)
 	repo := UserRepository{col: mockCollection}
 
 	ctx := context.Background()
@@ -202,8 +202,8 @@ func testGetUserByIdWithDecodeError(t *testing.T) {
 }
 
 func testGetUserByIdWithEmptyResponse(t *testing.T) {
-	mockCollection := new(mocks.Collection)
-	mockSingleResult := new(mocks.SingleResult)
+	mockCollection := new(mocks2.Collection)
+	mockSingleResult := new(mocks2.SingleResult)
 	repo := UserRepository{col: mockCollection}
 
 	ctx := context.Background()
@@ -224,8 +224,8 @@ func testGetUserByIdWithEmptyResponse(t *testing.T) {
 }
 
 func testGetUsers(t *testing.T) {
-	mockCollection := new(mocks.Collection)
-	mockCursor := new(mocks.Cursor)
+	mockCollection := new(mocks2.Collection)
+	mockCursor := new(mocks2.Cursor)
 	repo := UserRepository{col: mockCollection}
 
 	ctx := context.Background()
@@ -275,8 +275,8 @@ func testGetUsers(t *testing.T) {
 }
 
 func testGetUsersWithNoParams(t *testing.T) {
-	mockCollection := new(mocks.Collection)
-	mockCursor := new(mocks.Cursor)
+	mockCollection := new(mocks2.Collection)
+	mockCursor := new(mocks2.Cursor)
 	repo := UserRepository{col: mockCollection}
 
 	ctx := context.Background()
@@ -310,8 +310,8 @@ func testGetUsersWithNoParams(t *testing.T) {
 }
 
 func testGetUsersWithDbError(t *testing.T) {
-	mockCollection := new(mocks.Collection)
-	mockCursor := new(mocks.Cursor)
+	mockCollection := new(mocks2.Collection)
+	mockCursor := new(mocks2.Cursor)
 	repo := UserRepository{col: mockCollection}
 
 	ctx := context.Background()
@@ -344,8 +344,8 @@ func testGetUsersWithDbError(t *testing.T) {
 }
 
 func testGetUsersWithDecodeError(t *testing.T) {
-	mockCollection := new(mocks.Collection)
-	mockCursor := new(mocks.Cursor)
+	mockCollection := new(mocks2.Collection)
+	mockCursor := new(mocks2.Cursor)
 	repo := UserRepository{col: mockCollection}
 
 	ctx := context.Background()
@@ -380,7 +380,7 @@ func testGetUsersWithDecodeError(t *testing.T) {
 }
 
 func testUpdateUser(t *testing.T) {
-	mockCollection := new(mocks.Collection)
+	mockCollection := new(mocks2.Collection)
 	repo := UserRepository{col: mockCollection}
 
 	ctx := context.Background()
@@ -398,7 +398,7 @@ func testUpdateUser(t *testing.T) {
 }
 
 func testUpdateUserNotFound(t *testing.T) {
-	mockCollection := new(mocks.Collection)
+	mockCollection := new(mocks2.Collection)
 	repo := UserRepository{col: mockCollection}
 
 	ctx := context.Background()
@@ -416,7 +416,7 @@ func testUpdateUserNotFound(t *testing.T) {
 }
 
 func testUpdateUserWithDbError(t *testing.T) {
-	mockCollection := new(mocks.Collection)
+	mockCollection := new(mocks2.Collection)
 	repo := UserRepository{col: mockCollection}
 
 	ctx := context.Background()
@@ -442,7 +442,7 @@ func testUpdateUserWithDbError(t *testing.T) {
 }
 
 func testRemoveUser(t *testing.T) {
-	mockCollection := new(mocks.Collection)
+	mockCollection := new(mocks2.Collection)
 	repo := UserRepository{col: mockCollection}
 
 	ctx := context.Background()
@@ -458,7 +458,7 @@ func testRemoveUser(t *testing.T) {
 }
 
 func testRemoveUserNotFound(t *testing.T) {
-	mockCollection := new(mocks.Collection)
+	mockCollection := new(mocks2.Collection)
 	repo := UserRepository{col: mockCollection}
 
 	ctx := context.Background()
@@ -474,7 +474,7 @@ func testRemoveUserNotFound(t *testing.T) {
 }
 
 func testRemoveUserWithDbError(t *testing.T) {
-	mockCollection := new(mocks.Collection)
+	mockCollection := new(mocks2.Collection)
 	repo := UserRepository{col: mockCollection}
 
 	ctx := context.Background()

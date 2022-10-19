@@ -3,10 +3,10 @@
 package mocks
 
 import (
-	context "context"
+	"context"
 
-	mock "github.com/stretchr/testify/mock"
-	metadata "google.golang.org/grpc/metadata"
+	"github.com/stretchr/testify/mock"
+	"google.golang.org/grpc/metadata"
 
 	v1 "github.com/elizabeth-dev/FACEIT_Test/pkg/api/v1"
 )
