@@ -5,6 +5,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
+	"golang.org/x/crypto/bcrypt"
 
 	"testing"
 	"time"
@@ -23,8 +24,6 @@ func setHash(h []byte, err error) {
 }
 
 func TestUser(t *testing.T) {
-	t.Parallel()
-
 	for name, testGroup := range map[string]map[string]func(t *testing.T){
 		"getters": {
 			"should return the correct values": testGetters,
@@ -59,6 +58,10 @@ func TestUser(t *testing.T) {
 			},
 		)
 	}
+
+	// Set the stubbed functions back to their original values so they don't affect other tests.
+	nowFunc = time.Now
+	hashFunc = bcrypt.GenerateFromPassword
 }
 
 func testGetters(t *testing.T) {
