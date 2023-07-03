@@ -1,6 +1,6 @@
 syntax = "proto3";
-package test.elizabeth.faceit.api.v1;
-option go_package = "github.com/elizabeth-dev/FACEIT_Test/pkg/api/v1";
+package test.elizabeth.acme.api.v1;
+option go_package = "github.com/elizabeth-dev/ACME_Test/pkg/api/v1";
 
 import "google/protobuf/timestamp.proto";
 

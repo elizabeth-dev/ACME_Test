@@ -1,4 +1,4 @@
-module github.com/elizabeth-dev/FACEIT_Test
+module github.com/elizabeth-dev/ACME_Test
 
 go 1.19
 

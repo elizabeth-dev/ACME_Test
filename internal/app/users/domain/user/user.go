@@ -1,7 +1,7 @@
 package user
 
 import (
-	"github.com/elizabeth-dev/FACEIT_Test/internal/pkg/errors"
+	"github.com/elizabeth-dev/ACME_Test/internal/pkg/errors"
 	"golang.org/x/crypto/bcrypt"
 	"time"
 )

@@ -2,11 +2,11 @@ package main
 
 import (
 	"context"
-	"github.com/elizabeth-dev/FACEIT_Test/internal/app/users/ports"
-	"github.com/elizabeth-dev/FACEIT_Test/internal/app/users/service"
-	commonPorts "github.com/elizabeth-dev/FACEIT_Test/internal/pkg/ports"
-	"github.com/elizabeth-dev/FACEIT_Test/internal/pkg/server"
-	apiV1 "github.com/elizabeth-dev/FACEIT_Test/pkg/api/v1"
+	"github.com/elizabeth-dev/ACME_Test/internal/app/users/ports"
+	"github.com/elizabeth-dev/ACME_Test/internal/app/users/service"
+	commonPorts "github.com/elizabeth-dev/ACME_Test/internal/pkg/ports"
+	"github.com/elizabeth-dev/ACME_Test/internal/pkg/server"
+	apiV1 "github.com/elizabeth-dev/ACME_Test/pkg/api/v1"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/health/grpc_health_v1"
 )

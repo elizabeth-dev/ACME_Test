@@ -2,8 +2,8 @@ package command
 
 import (
 	"context"
-	pkgErrors "github.com/elizabeth-dev/FACEIT_Test/internal/pkg/errors"
-	"github.com/elizabeth-dev/FACEIT_Test/test/mocks"
+	pkgErrors "github.com/elizabeth-dev/ACME_Test/internal/pkg/errors"
+	"github.com/elizabeth-dev/ACME_Test/test/mocks"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"

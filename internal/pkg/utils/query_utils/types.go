@@ -1,6 +1,6 @@
 package query_utils
 
-import "github.com/elizabeth-dev/FACEIT_Test/internal/pkg/utils/query_utils/operators"
+import "github.com/elizabeth-dev/ACME_Test/internal/pkg/utils/query_utils/operators"
 
 type Filter struct {
 	Field    string

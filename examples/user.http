@@ -1,4 +1,4 @@
-GRPC localhost:8080/test.elizabeth.faceit.api.v1.UserService/CreateUser
+GRPC localhost:8080/test.elizabeth.acme.api.v1.UserService/CreateUser
 
 {
 	"first_name": "Elizabeth",
@@ -11,7 +11,7 @@ GRPC localhost:8080/test.elizabeth.faceit.api.v1.UserService/CreateUser
 
 ###
 
-GRPC localhost:8080/test.elizabeth.faceit.api.v1.UserService/GetUsers
+GRPC localhost:8080/test.elizabeth.acme.api.v1.UserService/GetUsers
 
 {
 	"filters": [
@@ -35,7 +35,7 @@ GRPC localhost:8080/test.elizabeth.faceit.api.v1.UserService/GetUsers
 
 ###
 
-GRPC localhost:8080/test.elizabeth.faceit.api.v1.UserService/UpdateUser
+GRPC localhost:8080/test.elizabeth.acme.api.v1.UserService/UpdateUser
 
 {
 	"id": "1cc41d24-1b9a-4042-82b9-5af83ff9a208",
@@ -44,7 +44,7 @@ GRPC localhost:8080/test.elizabeth.faceit.api.v1.UserService/UpdateUser
 
 ###
 
-GRPC localhost:8080/test.elizabeth.faceit.api.v1.UserService/RemoveUser
+GRPC localhost:8080/test.elizabeth.acme.api.v1.UserService/RemoveUser
 
 {
 	"id": "1cc41d24-1b9a-4042-82b9-5af83ff9a208"

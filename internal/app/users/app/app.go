@@ -1,8 +1,8 @@
 package app
 
 import (
-	"github.com/elizabeth-dev/FACEIT_Test/internal/app/users/app/command"
-	"github.com/elizabeth-dev/FACEIT_Test/internal/app/users/app/query"
+	"github.com/elizabeth-dev/ACME_Test/internal/app/users/app/command"
+	"github.com/elizabeth-dev/ACME_Test/internal/app/users/app/query"
 )
 
 type Application struct {

@@ -1,9 +1,9 @@
 package grpc_utils
 
 import (
-	"github.com/elizabeth-dev/FACEIT_Test/internal/pkg/utils/query_utils"
-	"github.com/elizabeth-dev/FACEIT_Test/internal/pkg/utils/query_utils/operators"
-	apiV1 "github.com/elizabeth-dev/FACEIT_Test/pkg/api/v1"
+	"github.com/elizabeth-dev/ACME_Test/internal/pkg/utils/query_utils"
+	"github.com/elizabeth-dev/ACME_Test/internal/pkg/utils/query_utils/operators"
+	apiV1 "github.com/elizabeth-dev/ACME_Test/pkg/api/v1"
 )
 
 func MapGrpcFilterToFilter(filter *apiV1.Filter) query_utils.Filter {

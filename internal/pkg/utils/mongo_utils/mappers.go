@@ -1,8 +1,8 @@
 package mongo_utils
 
 import (
-	"github.com/elizabeth-dev/FACEIT_Test/internal/pkg/utils/query_utils"
-	"github.com/elizabeth-dev/FACEIT_Test/internal/pkg/utils/query_utils/operators"
+	"github.com/elizabeth-dev/ACME_Test/internal/pkg/utils/query_utils"
+	"github.com/elizabeth-dev/ACME_Test/internal/pkg/utils/query_utils/operators"
 	"go.mongodb.org/mongo-driver/bson"
 )
 

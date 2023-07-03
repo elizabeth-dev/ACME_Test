@@ -136,7 +136,7 @@ type Filter struct {
 	unknownFields protoimpl.UnknownFields
 
 	Field    string          `protobuf:"bytes,1,opt,name=field,proto3" json:"field,omitempty"`
-	Operator Filter_Operator `protobuf:"varint,2,opt,name=operator,proto3,enum=test.elizabeth.faceit.api.v1.Filter_Operator" json:"operator,omitempty"`
+	Operator Filter_Operator `protobuf:"varint,2,opt,name=operator,proto3,enum=test.elizabeth.acme.api.v1.Filter_Operator" json:"operator,omitempty"`
 	// Types that are assignable to Value:
 	//	*Filter_StringValue
 	//	*Filter_IntValue
@@ -274,7 +274,7 @@ type Sort struct {
 	unknownFields protoimpl.UnknownFields
 
 	Field     string         `protobuf:"bytes,1,opt,name=field,proto3" json:"field,omitempty"`
-	Direction Sort_Direction `protobuf:"varint,2,opt,name=direction,proto3,enum=test.elizabeth.faceit.api.v1.Sort_Direction" json:"direction,omitempty"`
+	Direction Sort_Direction `protobuf:"varint,2,opt,name=direction,proto3,enum=test.elizabeth.acme.api.v1.Sort_Direction" json:"direction,omitempty"`
 }
 
 func (x *Sort) Reset() {
@@ -447,17 +447,17 @@ func file_common_proto_rawDescGZIP() []byte {
 var file_common_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
 var file_common_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
 var file_common_proto_goTypes = []interface{}{
-	(Filter_Operator)(0),          // 0: test.elizabeth.faceit.api.v1.Filter.Operator
-	(Sort_Direction)(0),           // 1: test.elizabeth.faceit.api.v1.Sort.Direction
-	(*Filter)(nil),                // 2: test.elizabeth.faceit.api.v1.Filter
-	(*Sort)(nil),                  // 3: test.elizabeth.faceit.api.v1.Sort
-	(*Pagination)(nil),            // 4: test.elizabeth.faceit.api.v1.Pagination
+	(Filter_Operator)(0),          // 0: test.elizabeth.acme.api.v1.Filter.Operator
+	(Sort_Direction)(0),           // 1: test.elizabeth.acme.api.v1.Sort.Direction
+	(*Filter)(nil),                // 2: test.elizabeth.acme.api.v1.Filter
+	(*Sort)(nil),                  // 3: test.elizabeth.acme.api.v1.Sort
+	(*Pagination)(nil),            // 4: test.elizabeth.acme.api.v1.Pagination
 	(*timestamppb.Timestamp)(nil), // 5: google.protobuf.Timestamp
 }
 var file_common_proto_depIdxs = []int32{
-	0, // 0: test.elizabeth.faceit.api.v1.Filter.operator:type_name -> test.elizabeth.faceit.api.v1.Filter.Operator
-	5, // 1: test.elizabeth.faceit.api.v1.Filter.timestamp_value:type_name -> google.protobuf.Timestamp
-	1, // 2: test.elizabeth.faceit.api.v1.Sort.direction:type_name -> test.elizabeth.faceit.api.v1.Sort.Direction
+	0, // 0: test.elizabeth.acme.api.v1.Filter.operator:type_name -> test.elizabeth.acme.api.v1.Filter.Operator
+	5, // 1: test.elizabeth.acme.api.v1.Filter.timestamp_value:type_name -> google.protobuf.Timestamp
+	1, // 2: test.elizabeth.acme.api.v1.Sort.direction:type_name -> test.elizabeth.acme.api.v1.Sort.Direction
 	3, // [3:3] is the sub-list for method output_type
 	3, // [3:3] is the sub-list for method input_type
 	3, // [3:3] is the sub-list for extension type_name

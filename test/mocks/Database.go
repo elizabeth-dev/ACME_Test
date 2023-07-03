@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/mock"
 	"go.mongodb.org/mongo-driver/mongo"
 
-	"github.com/elizabeth-dev/FACEIT_Test/internal/pkg/helper/mongo_helper"
+	"github.com/elizabeth-dev/ACME_Test/internal/pkg/helper/mongo_helper"
 
 	"go.mongodb.org/mongo-driver/mongo/options"
 )

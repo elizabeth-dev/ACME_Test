@@ -3,7 +3,7 @@ package user
 import (
 	"context"
 	"fmt"
-	"github.com/elizabeth-dev/FACEIT_Test/internal/pkg/utils/query_utils"
+	"github.com/elizabeth-dev/ACME_Test/internal/pkg/utils/query_utils"
 )
 
 type NotFoundError struct {

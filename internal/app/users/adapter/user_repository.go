@@ -2,11 +2,11 @@ package adapter
 
 import (
 	"context"
-	"github.com/elizabeth-dev/FACEIT_Test/internal/app/users/domain/user"
-	"github.com/elizabeth-dev/FACEIT_Test/internal/pkg/errors"
-	"github.com/elizabeth-dev/FACEIT_Test/internal/pkg/helper/mongo_helper"
-	"github.com/elizabeth-dev/FACEIT_Test/internal/pkg/utils/mongo_utils"
-	"github.com/elizabeth-dev/FACEIT_Test/internal/pkg/utils/query_utils"
+	"github.com/elizabeth-dev/ACME_Test/internal/app/users/domain/user"
+	"github.com/elizabeth-dev/ACME_Test/internal/pkg/errors"
+	"github.com/elizabeth-dev/ACME_Test/internal/pkg/helper/mongo_helper"
+	"github.com/elizabeth-dev/ACME_Test/internal/pkg/utils/mongo_utils"
+	"github.com/elizabeth-dev/ACME_Test/internal/pkg/utils/query_utils"
 	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"

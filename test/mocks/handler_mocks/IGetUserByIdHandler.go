@@ -5,7 +5,7 @@ package handler_mocks
 import (
 	"context"
 
-	"github.com/elizabeth-dev/FACEIT_Test/internal/app/users/app/query"
+	"github.com/elizabeth-dev/ACME_Test/internal/app/users/app/query"
 	"github.com/stretchr/testify/mock"
 )
 

@@ -2,7 +2,7 @@ package query
 
 import (
 	"context"
-	"github.com/elizabeth-dev/FACEIT_Test/internal/app/users/domain/user"
+	"github.com/elizabeth-dev/ACME_Test/internal/app/users/domain/user"
 	"github.com/sirupsen/logrus"
 )
 

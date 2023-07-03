@@ -2,9 +2,9 @@ package command
 
 import (
 	"context"
-	"github.com/elizabeth-dev/FACEIT_Test/internal/app/users/domain/user"
-	pkgErrors "github.com/elizabeth-dev/FACEIT_Test/internal/pkg/errors"
-	"github.com/elizabeth-dev/FACEIT_Test/test/mocks"
+	"github.com/elizabeth-dev/ACME_Test/internal/app/users/domain/user"
+	pkgErrors "github.com/elizabeth-dev/ACME_Test/internal/pkg/errors"
+	"github.com/elizabeth-dev/ACME_Test/test/mocks"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"

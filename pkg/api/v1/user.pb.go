@@ -558,31 +558,31 @@ func file_user_proto_rawDescGZIP() []byte {
 
 var file_user_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
 var file_user_proto_goTypes = []interface{}{
-	(*User)(nil),                  // 0: test.elizabeth.faceit.api.v1.User
-	(*CreateUserRequest)(nil),     // 1: test.elizabeth.faceit.api.v1.CreateUserRequest
-	(*GetUsersRequest)(nil),       // 2: test.elizabeth.faceit.api.v1.GetUsersRequest
-	(*UpdateUserRequest)(nil),     // 3: test.elizabeth.faceit.api.v1.UpdateUserRequest
-	(*RemoveUserRequest)(nil),     // 4: test.elizabeth.faceit.api.v1.RemoveUserRequest
+	(*User)(nil),                  // 0: test.elizabeth.acme.api.v1.User
+	(*CreateUserRequest)(nil),     // 1: test.elizabeth.acme.api.v1.CreateUserRequest
+	(*GetUsersRequest)(nil),       // 2: test.elizabeth.acme.api.v1.GetUsersRequest
+	(*UpdateUserRequest)(nil),     // 3: test.elizabeth.acme.api.v1.UpdateUserRequest
+	(*RemoveUserRequest)(nil),     // 4: test.elizabeth.acme.api.v1.RemoveUserRequest
 	(*timestamppb.Timestamp)(nil), // 5: google.protobuf.Timestamp
-	(*Filter)(nil),                // 6: test.elizabeth.faceit.api.v1.Filter
-	(*Sort)(nil),                  // 7: test.elizabeth.faceit.api.v1.Sort
-	(*Pagination)(nil),            // 8: test.elizabeth.faceit.api.v1.Pagination
+	(*Filter)(nil),                // 6: test.elizabeth.acme.api.v1.Filter
+	(*Sort)(nil),                  // 7: test.elizabeth.acme.api.v1.Sort
+	(*Pagination)(nil),            // 8: test.elizabeth.acme.api.v1.Pagination
 	(*emptypb.Empty)(nil),         // 9: google.protobuf.Empty
 }
 var file_user_proto_depIdxs = []int32{
-	5, // 0: test.elizabeth.faceit.api.v1.User.created_at:type_name -> google.protobuf.Timestamp
-	5, // 1: test.elizabeth.faceit.api.v1.User.updated_at:type_name -> google.protobuf.Timestamp
-	6, // 2: test.elizabeth.faceit.api.v1.GetUsersRequest.filters:type_name -> test.elizabeth.faceit.api.v1.Filter
-	7, // 3: test.elizabeth.faceit.api.v1.GetUsersRequest.sort:type_name -> test.elizabeth.faceit.api.v1.Sort
-	8, // 4: test.elizabeth.faceit.api.v1.GetUsersRequest.pagination:type_name -> test.elizabeth.faceit.api.v1.Pagination
-	1, // 5: test.elizabeth.faceit.api.v1.UserService.CreateUser:input_type -> test.elizabeth.faceit.api.v1.CreateUserRequest
-	2, // 6: test.elizabeth.faceit.api.v1.UserService.GetUsers:input_type -> test.elizabeth.faceit.api.v1.GetUsersRequest
-	3, // 7: test.elizabeth.faceit.api.v1.UserService.UpdateUser:input_type -> test.elizabeth.faceit.api.v1.UpdateUserRequest
-	4, // 8: test.elizabeth.faceit.api.v1.UserService.RemoveUser:input_type -> test.elizabeth.faceit.api.v1.RemoveUserRequest
-	0, // 9: test.elizabeth.faceit.api.v1.UserService.CreateUser:output_type -> test.elizabeth.faceit.api.v1.User
-	0, // 10: test.elizabeth.faceit.api.v1.UserService.GetUsers:output_type -> test.elizabeth.faceit.api.v1.User
-	0, // 11: test.elizabeth.faceit.api.v1.UserService.UpdateUser:output_type -> test.elizabeth.faceit.api.v1.User
-	9, // 12: test.elizabeth.faceit.api.v1.UserService.RemoveUser:output_type -> google.protobuf.Empty
+	5, // 0: test.elizabeth.acme.api.v1.User.created_at:type_name -> google.protobuf.Timestamp
+	5, // 1: test.elizabeth.acme.api.v1.User.updated_at:type_name -> google.protobuf.Timestamp
+	6, // 2: test.elizabeth.acme.api.v1.GetUsersRequest.filters:type_name -> test.elizabeth.acme.api.v1.Filter
+	7, // 3: test.elizabeth.acme.api.v1.GetUsersRequest.sort:type_name -> test.elizabeth.acme.api.v1.Sort
+	8, // 4: test.elizabeth.acme.api.v1.GetUsersRequest.pagination:type_name -> test.elizabeth.acme.api.v1.Pagination
+	1, // 5: test.elizabeth.acme.api.v1.UserService.CreateUser:input_type -> test.elizabeth.acme.api.v1.CreateUserRequest
+	2, // 6: test.elizabeth.acme.api.v1.UserService.GetUsers:input_type -> test.elizabeth.acme.api.v1.GetUsersRequest
+	3, // 7: test.elizabeth.acme.api.v1.UserService.UpdateUser:input_type -> test.elizabeth.acme.api.v1.UpdateUserRequest
+	4, // 8: test.elizabeth.acme.api.v1.UserService.RemoveUser:input_type -> test.elizabeth.acme.api.v1.RemoveUserRequest
+	0, // 9: test.elizabeth.acme.api.v1.UserService.CreateUser:output_type -> test.elizabeth.acme.api.v1.User
+	0, // 10: test.elizabeth.acme.api.v1.UserService.GetUsers:output_type -> test.elizabeth.acme.api.v1.User
+	0, // 11: test.elizabeth.acme.api.v1.UserService.UpdateUser:output_type -> test.elizabeth.acme.api.v1.User
+	9, // 12: test.elizabeth.acme.api.v1.UserService.RemoveUser:output_type -> google.protobuf.Empty
 	9, // [9:13] is the sub-list for method output_type
 	5, // [5:9] is the sub-list for method input_type
 	5, // [5:5] is the sub-list for extension type_name
@@ -707,7 +707,7 @@ func NewUserServiceClient(cc grpc.ClientConnInterface) UserServiceClient {
 
 func (c *userServiceClient) CreateUser(ctx context.Context, in *CreateUserRequest, opts ...grpc.CallOption) (*User, error) {
 	out := new(User)
-	err := c.cc.Invoke(ctx, "/test.elizabeth.faceit.api.v1.UserService/CreateUser", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/test.elizabeth.acme.api.v1.UserService/CreateUser", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -715,7 +715,7 @@ func (c *userServiceClient) CreateUser(ctx context.Context, in *CreateUserReques
 }
 
 func (c *userServiceClient) GetUsers(ctx context.Context, in *GetUsersRequest, opts ...grpc.CallOption) (UserService_GetUsersClient, error) {
-	stream, err := c.cc.NewStream(ctx, &_UserService_serviceDesc.Streams[0], "/test.elizabeth.faceit.api.v1.UserService/GetUsers", opts...)
+	stream, err := c.cc.NewStream(ctx, &_UserService_serviceDesc.Streams[0], "/test.elizabeth.acme.api.v1.UserService/GetUsers", opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -748,7 +748,7 @@ func (x *userServiceGetUsersClient) Recv() (*User, error) {
 
 func (c *userServiceClient) UpdateUser(ctx context.Context, in *UpdateUserRequest, opts ...grpc.CallOption) (*User, error) {
 	out := new(User)
-	err := c.cc.Invoke(ctx, "/test.elizabeth.faceit.api.v1.UserService/UpdateUser", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/test.elizabeth.acme.api.v1.UserService/UpdateUser", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -757,7 +757,7 @@ func (c *userServiceClient) UpdateUser(ctx context.Context, in *UpdateUserReques
 
 func (c *userServiceClient) RemoveUser(ctx context.Context, in *RemoveUserRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, "/test.elizabeth.faceit.api.v1.UserService/RemoveUser", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/test.elizabeth.acme.api.v1.UserService/RemoveUser", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -803,7 +803,7 @@ func _UserService_CreateUser_Handler(srv interface{}, ctx context.Context, dec f
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/test.elizabeth.faceit.api.v1.UserService/CreateUser",
+		FullMethod: "/test.elizabeth.acme.api.v1.UserService/CreateUser",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(UserServiceServer).CreateUser(ctx, req.(*CreateUserRequest))
@@ -842,7 +842,7 @@ func _UserService_UpdateUser_Handler(srv interface{}, ctx context.Context, dec f
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/test.elizabeth.faceit.api.v1.UserService/UpdateUser",
+		FullMethod: "/test.elizabeth.acme.api.v1.UserService/UpdateUser",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(UserServiceServer).UpdateUser(ctx, req.(*UpdateUserRequest))
@@ -860,7 +860,7 @@ func _UserService_RemoveUser_Handler(srv interface{}, ctx context.Context, dec f
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/test.elizabeth.faceit.api.v1.UserService/RemoveUser",
+		FullMethod: "/test.elizabeth.acme.api.v1.UserService/RemoveUser",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(UserServiceServer).RemoveUser(ctx, req.(*RemoveUserRequest))
@@ -869,7 +869,7 @@ func _UserService_RemoveUser_Handler(srv interface{}, ctx context.Context, dec f
 }
 
 var _UserService_serviceDesc = grpc.ServiceDesc{
-	ServiceName: "test.elizabeth.faceit.api.v1.UserService",
+	ServiceName: "test.elizabeth.acme.api.v1.UserService",
 	HandlerType: (*UserServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

@@ -2,11 +2,11 @@ package service
 
 import (
 	"context"
-	"github.com/elizabeth-dev/FACEIT_Test/internal/app/users/adapter"
-	"github.com/elizabeth-dev/FACEIT_Test/internal/app/users/app"
-	"github.com/elizabeth-dev/FACEIT_Test/internal/app/users/app/command"
-	"github.com/elizabeth-dev/FACEIT_Test/internal/app/users/app/query"
-	"github.com/elizabeth-dev/FACEIT_Test/internal/pkg/helper/mongo_helper"
+	"github.com/elizabeth-dev/ACME_Test/internal/app/users/adapter"
+	"github.com/elizabeth-dev/ACME_Test/internal/app/users/app"
+	"github.com/elizabeth-dev/ACME_Test/internal/app/users/app/command"
+	"github.com/elizabeth-dev/ACME_Test/internal/app/users/app/query"
+	"github.com/elizabeth-dev/ACME_Test/internal/pkg/helper/mongo_helper"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"

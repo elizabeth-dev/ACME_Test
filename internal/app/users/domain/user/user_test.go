@@ -1,7 +1,7 @@
 package user
 
 import (
-	pkgErrors "github.com/elizabeth-dev/FACEIT_Test/internal/pkg/errors"
+	pkgErrors "github.com/elizabeth-dev/ACME_Test/internal/pkg/errors"
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"

@@ -2,7 +2,7 @@ package e2e
 
 import (
 	"context"
-	apiV1 "github.com/elizabeth-dev/FACEIT_Test/pkg/api/v1"
+	apiV1 "github.com/elizabeth-dev/ACME_Test/pkg/api/v1"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
